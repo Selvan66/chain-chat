@@ -8,6 +8,7 @@ use crate::configuration::Settings;
 use crate::routes::health_check;
 
 pub struct Application {
+    port: u16,
     server: Server,
 }
 
@@ -19,14 +20,19 @@ impl Application {
         );
 
         let listener = TcpListener::bind(address).expect("Failed to bind port");
+        let port = listener.local_addr().unwrap().port();
 
         let server = run(listener).await?;
 
-        Ok(Self { server })
+        Ok(Self { port, server })
     }
 
     pub async fn run_until_stopped(self) -> Result<(), std::io::Error> {
         self.server.await
+    }
+
+    pub fn port(&self) -> u16 {
+        self.port
     }
 }
 
