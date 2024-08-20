@@ -20,7 +20,7 @@ impl LogConfig {
         S: Subscriber,
         for<'a> S: LookupSpan<'a>,
     {
-        let fmt = fmt::layer().with_thread_names(true).json();
+        let fmt = fmt::layer().with_thread_names(true).pretty();
 
         let (non_blocking, guard) = match self {
             LogConfig::File(path) => {

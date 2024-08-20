@@ -11,10 +11,14 @@ path = "src/main.rs"
 name = "chain-chat"
 
 [dependencies]
-tokio = { version ="1.39.3", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.39.3", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1.0.208", features  = ["derive"] }
+
+actix-web = "4.9.0"
+config = "0.14.0"
 # Errors
 anyhow = "1.0.86"
-# Tracing / Log
+# Tracing / Logs
 tracing = { version = "0.1.40", features = ["log", "attributes"] }
 tracing-subscriber = { version = "0.3.18", features = ["registry", "env-filter", "json"] }
 tracing-log = "0.2.0"
