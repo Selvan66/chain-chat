@@ -1,8 +1,8 @@
-use chain_chat::telemetry::{get_tracing_subscriber, init_tracing_subscriber, LogConfig};
+use chain_chat::telemetry::{init_tracing_logger, LogConfig};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let subscriber = get_tracing_subscriber(LogConfig::Stdout, "info".into());
-    init_tracing_subscriber(subscriber);
+    let _guard = init_tracing_logger(LogConfig::Stdout, "info".into());
+
     Ok(())
 }

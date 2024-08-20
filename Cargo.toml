@@ -18,4 +18,5 @@ anyhow = "1.0.86"
 tracing = { version = "0.1.40", features = ["log", "attributes"] }
 tracing-subscriber = { version = "0.3.18", features = ["registry", "env-filter", "json"] }
 tracing-log = "0.2.0"
+tracing-appender = "0.2.3"
 tracing-actix-web = "0.7.11"
