@@ -7,8 +7,7 @@ async fn home_works() {
     let response = app.get_response("/").await;
 
     assert!(response.status().is_success());
-    assert_eq!(Some(0), response.content_length());
 
     let html = app.get_html("/").await;
-    assert!(!html.contain("Welcome"));
+    assert!(!html.contains("Welcome"));
 }

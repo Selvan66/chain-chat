@@ -14,7 +14,7 @@ pub struct TestApp {
 impl TestApp {
     pub async fn get_response(&self, path: &str) -> reqwest::Response {
         self.api_client
-            .get(&format!("{}{}", &app.address, path))
+            .get(&format!("{}{}", self.address, path))
             .send()
             .await
             .expect("Failed to execute request")
@@ -26,7 +26,8 @@ impl TestApp {
 }
 
 pub async fn spawn_app() -> TestApp {
-    let configuration = get_configuration().expect("Failed to read configuration");
+    let mut configuration = get_configuration().expect("Failed to read configuration");
+    configuration.application.port = 0;
 
     let application = Application::build(configuration)
         .await
@@ -40,7 +41,7 @@ pub async fn spawn_app() -> TestApp {
         .build()
         .expect("Failed to build client");
 
-    let guard = init_tracing_logger(LogConfig::Stdout, "info".into());
+    let guard = init_tracing_logger(LogConfig::File("log/test_log.txt".into()), "info".into());
 
     TestApp {
         address: format!("http://localhost:{}", application_port),

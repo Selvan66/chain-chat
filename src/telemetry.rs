@@ -24,6 +24,7 @@ impl LogConfig {
 
         let (non_blocking, guard) = match self {
             LogConfig::File(path) => {
+                // TODO: create file with all dir
                 let file = File::create(path).expect("Failed to create log file");
                 non_blocking(file)
             }
@@ -42,10 +43,14 @@ pub fn init_tracing_logger(log_config: LogConfig, env_filter: String) -> WorkerG
     let (layer, guard) = log_config.layer();
 
     let subscriber = Registry::default().with(env_filter).with(layer);
-    LogTracer::init().expect("Failed to set logger");
-    // Ignore error - tests call init_tracing_logger multiple times.
+
+    // Ignore errors - tests call init_tracing_logger multiple times.
+    match LogTracer::init() {
+        Err(e) => tracing::error!("Logger LogTracer::init | Ignored {}", e),
+        _ => (),
+    }
     match set_global_default(subscriber) {
-        Err(e) => tracing::error!("Logger set_global_default. Ignored {}", e),
+        Err(e) => tracing::error!("Logger set_global_default | Ignored {}", e),
         _ => (),
     }
     guard
