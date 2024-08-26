@@ -11,6 +11,20 @@ pub struct TestApp {
     _log_guard: WorkerGuard,
 }
 
+impl TestApp {
+    pub async fn get_response(&self, path: &str) -> reqwest::Response {
+        self.api_client
+            .get(&format!("{}{}", &app.address, path))
+            .send()
+            .await
+            .expect("Failed to execute request")
+    }
+
+    pub async fn get_html(&self, path: &str) -> String {
+        self.get_response(path).await.text().await.unwrap()
+    }
+}
+
 pub async fn spawn_app() -> TestApp {
     let configuration = get_configuration().expect("Failed to read configuration");
 
