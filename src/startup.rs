@@ -5,7 +5,7 @@ use actix_web::{App, HttpServer};
 use tracing_actix_web::TracingLogger;
 
 use crate::configuration::Settings;
-use crate::routes::health_check;
+use crate::routes::{health_check, home};
 
 pub struct Application {
     port: u16,
@@ -40,6 +40,7 @@ async fn run(listener: TcpListener) -> Result<Server, anyhow::Error> {
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
+            .service(home)
             .service(health_check)
     })
     .listen(listener)?
