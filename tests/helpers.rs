@@ -1,14 +1,5 @@
-use once_cell::sync::Lazy;
-
 use chain_chat::configuration::get_configuration;
 use chain_chat::startup::Application;
-use chain_chat::telemetry::{init_tracing_logger, LogConfig};
-
-static TRACING: Lazy<()> = Lazy::new(|| {
-    if std::env::var("TEST_LOG").is_ok() {
-        init_tracing_logger(LogConfig::Stdout, "info".into());
-    }
-});
 
 pub struct TestApp {
     pub address: String,
@@ -16,10 +7,7 @@ pub struct TestApp {
 }
 
 pub async fn spawn_app() -> TestApp {
-    Lazy::force(&TRACING);
-
-    let mut configuration = get_configuration().expect("Failed to read configuration");
-    configuration.application.port = 0;
+    let configuration = get_configuration().expect("Failed to read configuration");
 
     let application = Application::build(configuration)
         .await
