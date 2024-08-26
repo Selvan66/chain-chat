@@ -1,9 +1,14 @@
+use tracing_appender::non_blocking::WorkerGuard;
+
 use chain_chat::configuration::get_configuration;
 use chain_chat::startup::Application;
+use chain_chat::telemetry::{init_tracing_logger, LogConfig};
 
 pub struct TestApp {
     pub address: String,
     pub api_client: reqwest::Client,
+
+    _log_guard: WorkerGuard,
 }
 
 pub async fn spawn_app() -> TestApp {
@@ -21,8 +26,12 @@ pub async fn spawn_app() -> TestApp {
         .build()
         .expect("Failed to build client");
 
+    let guard = init_tracing_logger(LogConfig::Stdout, "info".into());
+
     TestApp {
         address: format!("http://localhost:{}", application_port),
         api_client: client,
+
+        _log_guard: guard,
     }
 }

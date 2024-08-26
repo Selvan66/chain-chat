@@ -36,22 +36,17 @@ impl LogConfig {
 }
 
 pub fn init_tracing_logger(log_config: LogConfig, env_filter: String) -> WorkerGuard {
-    let (subscriber, guard) = get_tracing_subscriber(log_config, env_filter);
-    LogTracer::init().expect("Failed to set logger");
-    set_global_default(subscriber).expect("Failed to set subscriber");
-    guard
-}
-
-fn get_tracing_subscriber(
-    log_config: LogConfig,
-    env_filter: String,
-) -> (impl Subscriber + Send + Sync, WorkerGuard) {
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter));
 
     let (layer, guard) = log_config.layer();
 
     let subscriber = Registry::default().with(env_filter).with(layer);
-
-    (subscriber, guard)
+    LogTracer::init().expect("Failed to set logger");
+    // Ignore error - tests call init_tracing_logger multiple times.
+    match set_global_default(subscriber) {
+        Err(e) => tracing::error!("Logger set_global_default. Ignored {}", e),
+        _ => (),
+    }
+    guard
 }
