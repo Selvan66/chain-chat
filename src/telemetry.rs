@@ -1,8 +1,10 @@
-use std::{fs::File, io, path::PathBuf};
+use std::ffi::OsStr;
+use std::io;
+use std::path::{Path, PathBuf};
 
 use tracing::{subscriber::set_global_default, Subscriber};
-use tracing_appender::non_blocking;
 use tracing_appender::non_blocking::WorkerGuard;
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_log::LogTracer;
 use tracing_subscriber::{
     fmt, layer::SubscriberExt, registry::LookupSpan, EnvFilter, Layer, Registry,
@@ -27,14 +29,22 @@ impl LogConfig {
 
         let (non_blocking, guard) = match self {
             LogConfig::File(path) => {
-                if let Some(parent) = path.parent() {
-                    std::fs::create_dir_all(parent).expect("Failed to create log directories");
-                }
-                let file = File::create(path).expect("Failed to create log file");
-                non_blocking(file)
+                let default_name = "log.txt";
+                let log_appender = RollingFileAppender::builder()
+                    .rotation(Rotation::DAILY)
+                    .max_log_files(3)
+                    .filename_suffix(
+                        path.file_name()
+                            .unwrap_or(OsStr::new(default_name))
+                            .to_str()
+                            .unwrap_or(default_name),
+                    )
+                    .build(path.parent().unwrap_or(Path::new("./")))
+                    .expect("Failed to initialiase rolling file");
+                tracing_appender::non_blocking(log_appender)
             }
-            LogConfig::Stdout => non_blocking(io::stdout()),
-            LogConfig::Stderr => non_blocking(io::stderr()),
+            LogConfig::Stdout => tracing_appender::non_blocking(io::stdout()),
+            LogConfig::Stderr => tracing_appender::non_blocking(io::stderr()),
         };
 
         (Box::new(fmt.with_writer(non_blocking)), guard)
