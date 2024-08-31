@@ -5,7 +5,7 @@ use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
 
 use crate::configuration::Settings;
-use crate::routes::{health_check, home};
+use crate::routes::{health_check, home, login};
 
 pub struct Application {
     port: u16,
@@ -42,6 +42,7 @@ async fn run(listener: TcpListener) -> Result<Server, anyhow::Error> {
             .wrap(Logger::new("%{r}a %r %s"))
             .service(home)
             .service(health_check)
+            .service(login)
     })
     .listen(listener)?
     .run();
