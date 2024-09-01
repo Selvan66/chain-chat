@@ -45,7 +45,13 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
                 .expect("Failed to find configuration file"),
             FileFormat::Yaml,
         ))
-        .add_source(File::new(&environment, FileFormat::Yaml))
+        .add_source(File::new(
+            config_dir
+                .join(&environment)
+                .to_str()
+                .expect("Failed to find configuration files: local and production"),
+            FileFormat::Yaml,
+        ))
         .add_source(config::Environment::with_prefix("APP").separator("__"))
         .build()?;
 
