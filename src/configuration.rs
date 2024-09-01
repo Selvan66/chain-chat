@@ -1,8 +1,10 @@
 use config::{Config, File, FileFormat};
+use secrecy::Secret;
 
 #[derive(serde::Deserialize, Clone)]
 pub struct Settings {
     pub application: ApplicationSettings,
+    pub database: DatabaseSettings,
 }
 
 #[derive(serde::Deserialize, Clone)]
@@ -11,10 +13,30 @@ pub struct ApplicationSettings {
     pub host: String,
 }
 
+#[derive(serde::Deserialize, Clone)]
+pub struct DatabaseSettings {
+    pub username: String,
+    pub password: Secret<String>,
+    pub port: u16,
+    pub host: String,
+    pub database_name: String,
+    pub require_ssl: bool,
+}
+
 pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let base_path = std::env::current_dir().expect("Failed to determine the current directory");
     let config_dir = base_path.join("configuration");
     let config_base_file = config_dir.join("base");
+    let environment = match std::env::var("APP_ENVIRONMENT") {
+        Ok(s) => {
+            if s == "poduction" {
+                s
+            } else {
+                "local".into()
+            }
+        }
+        Err(_) => "local".into(),
+    };
 
     let settings = Config::builder()
         .add_source(File::new(
@@ -23,6 +45,8 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
                 .expect("Failed to find configuration file"),
             FileFormat::Yaml,
         ))
+        .add_source(File::new(&environment, FileFormat::Yaml))
+        .add_source(config::Environment::with_prefix("APP").separator("__"))
         .build()?;
 
     settings.try_deserialize()
