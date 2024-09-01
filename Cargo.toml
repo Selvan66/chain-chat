@@ -16,6 +16,9 @@ serde = { version = "1.0.208", features  = ["derive"] }
 
 actix-web = "4.9.0"
 config = "0.14.0"
+# Cryptografic
+secrecy = { version = "0.8.0", features = ["serde"] }
+uuid = { version = "1.10.0", features = ["v4", "serde"] }
 # Errors
 anyhow = "1.0.86"
 # Tracing / Logs
@@ -38,4 +41,5 @@ features = [
   "migrate",
   "uuid",
   "chrono",
+  "runtime-tokio"
 ]

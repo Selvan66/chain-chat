@@ -17,12 +17,11 @@ pub fn connection_without_db(settings: &DatabaseSettings) -> MySqlConnectOptions
         .password(settings.password.expose_secret())
         .port(settings.port)
         .ssl_mode(ssl_mode)
+        .log_statements(tracing::log::LevelFilter::Trace)
 }
 
 pub fn connection_with_db(settings: &DatabaseSettings) -> MySqlConnectOptions {
-    connection_without_db(settings)
-        .log_statements(tracing::log::LevelFilter::Trace)
-        .database(&settings.database_name)
+    connection_without_db(settings).database(&settings.database_name)
 }
 
 pub fn get_db_pool(connection: MySqlConnectOptions) -> MySqlPool {

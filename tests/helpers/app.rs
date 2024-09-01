@@ -1,12 +1,17 @@
+use sqlx::mysql::MySqlPool;
 use tracing_appender::non_blocking::WorkerGuard;
 
 use chain_chat::configuration::get_configuration;
+use chain_chat::database::connection_without_db;
 use chain_chat::startup::Application;
 use chain_chat::telemetry::{init_tracing_logger, LogConfig};
+
+use crate::helpers::database::configure_database;
 
 pub struct TestApp {
     pub address: String,
     pub api_client: reqwest::Client,
+    pub db_pool: MySqlPool,
 
     _log_guard: WorkerGuard,
 }
@@ -29,6 +34,9 @@ pub async fn spawn_app() -> TestApp {
     let mut configuration = get_configuration().expect("Failed to read configuration");
     configuration.application.port = 0;
 
+    let connection = connection_without_db(&configuration.database);
+    let db_pool = configure_database(connection).await;
+
     let application = Application::build(configuration)
         .await
         .expect("Failed to build application");
@@ -46,6 +54,7 @@ pub async fn spawn_app() -> TestApp {
     TestApp {
         address: format!("http://localhost:{}", application_port),
         api_client: client,
+        db_pool,
 
         _log_guard: guard,
     }
