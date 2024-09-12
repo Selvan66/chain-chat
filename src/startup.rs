@@ -8,7 +8,7 @@ use sqlx::MySqlPool;
 
 use crate::configuration::Settings;
 use crate::database::{connection_with_db, get_db_pool};
-use crate::routes::{health_check, home, login};
+use crate::routes::{health_check, home, login, register};
 
 pub struct Application {
     port: u16,
@@ -50,6 +50,7 @@ async fn run(listener: TcpListener, db_pool: MySqlPool) -> Result<Server, anyhow
             .service(home)
             .service(health_check)
             .service(login)
+            .service(register)
     })
     .listen(listener)?
     .run();
