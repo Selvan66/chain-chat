@@ -1,3 +1,4 @@
+use chain_chat::database::check_if_username_exist;
 use fake::faker::name;
 use fake::Fake;
 
@@ -5,7 +6,7 @@ use crate::helpers::assert::assert_is_redirect_to;
 use crate::helpers::spawn_app;
 
 #[tokio::test]
-async fn register_works() {
+async fn register_get_works() {
     let app = spawn_app().await;
 
     let response = app.get_response("/register").await;
@@ -16,6 +17,29 @@ async fn register_works() {
     assert!(html.contains("Username"));
     assert!(html.contains("Password"));
     assert!(html.contains("Confirm password"));
+}
+
+#[tokio::test]
+async fn register_post_works() {
+    let app = spawn_app().await;
+
+    let username: String = name::en::Name().fake();
+    let password = uuid::Uuid::new_v4().to_string();
+
+    let register_body = serde_json::json!({
+        "username": username,
+        "password": password,
+        "confirm-password": password,
+    });
+
+    let response = app.post_body(&register_body, "/register").await;
+    assert_is_redirect_to(&response, "/");
+
+    // TODO: Check flash message for: register successful
+
+    assert!(check_if_username_exist(&app.db_pool, username.as_str())
+        .await
+        .expect("Cannot query database"));
 }
 
 #[tokio::test]
@@ -56,7 +80,7 @@ async fn register_without_username() {
 }
 
 #[tokio::test]
-async fn register_without_password() {
+async fn register_short_password() {
     let app = spawn_app().await;
 
     let username: String = name::en::Name().fake();
@@ -64,7 +88,7 @@ async fn register_without_password() {
 
     let register_body = serde_json::json!({
         "username": username,
-        "password": "",
+        "password": "a",
         "confirm-password": password,
     });
 
