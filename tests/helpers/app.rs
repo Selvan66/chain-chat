@@ -22,11 +22,23 @@ impl TestApp {
             .get(&format!("{}{}", self.address, path))
             .send()
             .await
-            .expect("Failed to execute request")
+            .expect("Failed to GET")
     }
 
     pub async fn get_html(&self, path: &str) -> String {
         self.get_response(path).await.text().await.unwrap()
+    }
+
+    pub async fn post_body<Body>(&self, body: &Body, path: &str) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(&format!("{}{}", self.address, path))
+            .form(body)
+            .send()
+            .await
+            .expect("Failed to POST")
     }
 }
 

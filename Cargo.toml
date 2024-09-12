@@ -13,12 +13,15 @@ name = "chain-chat"
 [dependencies]
 tokio = { version = "1.39.3", features = ["macros", "rt-multi-thread"] }
 serde = { version = "1.0.208", features  = ["derive"] }
+serde_json = "1.0.128"
 
 actix-web = "4.9.0"
 config = "0.14.0"
 # Cryptografic
 secrecy = { version = "0.8.0", features = ["serde"] }
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
+argon2 = { version = "0.5.3", features = ["std"] }
+rand = { version = "0.8.5", features = ["std_rng"] }
 # Errors
 anyhow = "1.0.86"
 # Tracing / Logs
@@ -43,3 +46,6 @@ features = [
   "chrono",
   "runtime-tokio"
 ]
+
+[dev-dependencies]
+fake = "2.9.2"
