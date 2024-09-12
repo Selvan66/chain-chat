@@ -6,13 +6,15 @@ import time
 import docker
 import mysql.connector
 
+MYSQL_CONTAINER_NAME = "mysql_chain_chat"
+
 
 def check_if_command_exist(command):
     output = subprocess.getstatusoutput(f"{command} --version")
     if output[0] == 0:
-        print(output[1])
+        print("\t", output[1], sep="")
         return True
-    print("Command {commnad} doesn't exists")
+    print("\tCommand {commnad} doesn't exists")
     return False
 
 
@@ -47,20 +49,21 @@ def get_mysql_env():
     return env
 
 
-def create_mysql_container():
-    print("Start creating MySQL container")
+def check_if_mysql_container_exists(docker_client):
+    return docker_client.containers.list(
+        all=True, filters={"name": MYSQL_CONTAINER_NAME}
+    )
 
-    try:
-        client = docker.from_env()
-    except docker.errors.DockerException as e:
-        print("Docker engine is not running", e)
-        sys.exit(1)
+
+def create_mysql_container(docker_client):
+    print("\tStart creating MySQL container")
 
     env = get_mysql_env()
     port = env["MYSQL_PORT"]
     try:
-        container = client.containers.run(
+        container = docker_client.containers.run(
             "mysql",
+            name=MYSQL_CONTAINER_NAME,
             detach=True,
             ports={f"{port}/tcp": f"{port}"},
             environment={
@@ -71,11 +74,31 @@ def create_mysql_container():
             },
         )
     except docker.errors.APIError:
-        print("Docker is probably running")
+        print("\tDocker is probably running")
     else:
         print(
-            f"MySQL container started successfully. Container ID: {container.short_id}"
+            f"\tMySQL container created successfully. Container ID: {container.short_id}"
         )
+
+
+def run_mysql_container():
+    print("Run mysql container")
+
+    try:
+        client = docker.from_env()
+    except docker.errors.DockerException as e:
+        print("\tDocker engine is not running", e)
+        sys.exit(1)
+
+    if check_if_mysql_container_exists(client):
+        print("\tContainer exists")
+        container = client.containers.get(MYSQL_CONTAINER_NAME)
+        container.start()
+        print(f"\tContainer found. Container ID: {container.short_id}")
+    else:
+        create_mysql_container(client)
+
+    print("\tMySQL container started successfully.")
 
 
 def wait_until_mysql_start():
@@ -91,10 +114,10 @@ def wait_until_mysql_start():
                 database=env["MYSQL_DATABASE"],
             )
             connection.close()
-            print("MySQL is running")
+            print("\tMySQL is running")
             return True
         except mysql.connector.errors.OperationalError:
-            print("Waiting for MySQL to start")
+            print("\tWaiting for MySQL to start")
             time.sleep(2)
 
     return False
@@ -107,25 +130,41 @@ def run_sqlx_migration():
     sqlx_env["DATABASE_URL"]: env["DATABASE_URL"]
 
     result = subprocess.run(
-        "sqlx database create", shell=True, check=False, env=sqlx_env
+        "sqlx database create",
+        shell=True,
+        check=False,
+        env=sqlx_env,
+        capture_output=True,
+        text=True,
     )
 
     if result.returncode != 0:
-        print("Sqlx cannot create database")
+        print("\tSqlx cannot create database")
         return False
 
-    result = subprocess.run("sqlx migrate run", shell=True, check=False, env=sqlx_env)
+    print("\n".join([f"\t{line}" for line in result.stdout.split("\n")]))
+
+    result = subprocess.run(
+        "sqlx migrate run",
+        shell=True,
+        check=False,
+        env=sqlx_env,
+        capture_output=True,
+        text=True,
+    )
 
     if result.returncode != 0:
-        print("Sqlx cannot run migrations")
+        print("\tSqlx cannot run migrations")
         return False
 
-    print("Migrations run successfully")
+    print("\n".join([f"\t{line}" for line in result.stdout.split("\n")]))
+
+    print("\tMigrations run successfully")
     return True
 
 
 if __name__ == "__main__":
     check_commands()
-    create_mysql_container()
+    run_mysql_container()
     wait_until_mysql_start()
     run_sqlx_migration()
