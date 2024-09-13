@@ -1,15 +1,15 @@
 use sqlx::mysql::{MySqlConnectOptions, MySqlPool};
 use sqlx::{ConnectOptions, Executor};
-use uuid::Uuid;
 
-pub async fn configure_database(connection_options: MySqlConnectOptions) -> MySqlPool {
+pub async fn configure_database(
+    connection_options: MySqlConnectOptions,
+    database_name: String,
+) -> MySqlPool {
     let mut connection = connection_options
         .clone()
         .connect()
         .await
         .expect("Failed to connect to MySQL");
-
-    let database_name = Uuid::new_v4().to_string();
 
     connection
         .execute(format!(r#"CREATE DATABASE `{}`;"#, database_name).as_str())

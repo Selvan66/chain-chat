@@ -2,7 +2,7 @@ use std::net::TcpListener;
 
 use actix_web::dev::Server;
 use actix_web::middleware::Logger;
-use actix_web::{App, HttpServer};
+use actix_web::{web, App, HttpServer};
 use anyhow::Context;
 use sqlx::MySqlPool;
 
@@ -43,15 +43,16 @@ impl Application {
 }
 
 async fn run(listener: TcpListener, db_pool: MySqlPool) -> Result<Server, anyhow::Error> {
+    let db_pool = web::Data::new(db_pool);
     let server = HttpServer::new(move || {
         App::new()
-            .app_data(db_pool.clone())
-            .wrap(Logger::new("%{r}a %r %s"))
+            .wrap(Logger::new("%{r}a %r %s %{Location}o"))
             .service(home)
             .service(health_check)
             .service(login)
             .service(register_get)
             .service(register_post)
+            .app_data(db_pool.clone())
     })
     .listen(listener)?
     .run();

@@ -29,7 +29,7 @@ async fn register_post_works() {
     let register_body = serde_json::json!({
         "username": username,
         "password": password,
-        "confirm-password": password,
+        "confirm_password": password,
     });
 
     let response = app.post_body(&register_body, "/register").await;
@@ -46,13 +46,13 @@ async fn register_post_works() {
 async fn username_is_too_long() {
     let app = spawn_app().await;
 
-    let username: String = 260.fake();
+    let username: String = 300.fake();
     let password = uuid::Uuid::new_v4().to_string();
 
     let register_body = serde_json::json!({
         "username": username,
         "password": password,
-        "confirm-password": password,
+        "confirm_password": password,
     });
 
     let response = app.post_body(&register_body, "/register").await;
@@ -62,15 +62,15 @@ async fn username_is_too_long() {
 }
 
 #[tokio::test]
-async fn register_without_username() {
+async fn username_is_too_short() {
     let app = spawn_app().await;
 
     let password = uuid::Uuid::new_v4().to_string();
 
     let register_body = serde_json::json!({
-        "username": "",
+        "username": "a",
         "password": password,
-        "confirm-password": password,
+        "confirm_password": password,
     });
 
     let response = app.post_body(&register_body, "/register").await;
@@ -89,7 +89,7 @@ async fn register_short_password() {
     let register_body = serde_json::json!({
         "username": username,
         "password": "a",
-        "confirm-password": password,
+        "confirm_password": password,
     });
 
     let response = app.post_body(&register_body, "/register").await;
@@ -100,7 +100,7 @@ async fn register_short_password() {
     let register_body = serde_json::json!({
         "username": username,
         "password": password,
-        "confirm-password": "",
+        "confirm_password": "",
     });
 
     let response = app.post_body(&register_body, "/register").await;
@@ -119,7 +119,7 @@ async fn username_is_already_used() {
     let register_body = serde_json::json!({
         "username": username,
         "password": password,
-        "confirm-password": password,
+        "confirm_password": password,
     });
 
     let response = app.post_body(&register_body, "/register").await;
@@ -142,11 +142,11 @@ async fn password_and_confirm_password_is_not_equal() {
     let register_body = serde_json::json!({
         "username": username,
         "password": uuid::Uuid::new_v4().to_string(),
-        "confirm-password": uuid::Uuid::new_v4().to_string(),
+        "confirm_password": uuid::Uuid::new_v4().to_string(),
     });
 
     let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/");
+    assert_is_redirect_to(&response, "/register");
 
     // TODO: Check flash message for: register failed - username is already used
 }

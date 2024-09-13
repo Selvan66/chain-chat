@@ -31,7 +31,7 @@ pub async fn add_user(pool: &MySqlPool, user: User) -> Result<(), anyhow::Error>
     INSERT INTO users (user_id, username, password_hash)
     VALUES (?, ?, ?)
     "#,
-        user.user_id,
+        user.user_id.to_string(),
         user.username,
         user.password_hash.expose_secret()
     )

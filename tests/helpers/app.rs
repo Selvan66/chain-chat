@@ -5,6 +5,7 @@ use chain_chat::configuration::get_configuration;
 use chain_chat::database::init::connection_without_db;
 use chain_chat::startup::Application;
 use chain_chat::telemetry::{init_tracing_logger, LogConfig};
+use uuid::Uuid;
 
 use crate::helpers::database::configure_database;
 
@@ -43,11 +44,13 @@ impl TestApp {
 }
 
 pub async fn spawn_app() -> TestApp {
+    let database_name = Uuid::new_v4().to_string();
     let mut configuration = get_configuration().expect("Failed to read configuration");
     configuration.application.port = 0;
+    configuration.database.database_name = database_name.clone();
 
     let connection = connection_without_db(&configuration.database);
-    let db_pool = configure_database(connection).await;
+    let db_pool = configure_database(connection, database_name).await;
 
     let application = Application::build(configuration)
         .await
