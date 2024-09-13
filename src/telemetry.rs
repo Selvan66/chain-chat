@@ -22,10 +22,11 @@ impl LogConfig {
         S: Subscriber,
         for<'a> S: LookupSpan<'a>,
     {
-        let fmt = fmt::layer().with_thread_names(true).pretty();
+        let mut fmt = fmt::layer().with_thread_names(true).pretty();
 
         let (non_blocking, guard) = match self {
             LogConfig::File(path) => {
+                fmt = fmt.with_ansi(false);
                 let default_name = "log.txt";
                 let log_appender = RollingFileAppender::builder()
                     .rotation(Rotation::DAILY)
