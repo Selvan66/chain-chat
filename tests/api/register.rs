@@ -1,6 +1,8 @@
-use chain_chat::database::users::check_if_username_exist;
 use fake::faker::name;
 use fake::Fake;
+
+use chain_chat::database::users::check_if_username_exist;
+use chain_chat::domain::messages::*;
 
 use crate::helpers::assert::assert_is_redirect_to;
 use crate::helpers::spawn_app;
@@ -35,7 +37,10 @@ async fn register_post_works() {
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/");
 
-    // TODO: Check flash message for: register successful
+    let html = app.get_html("/").await;
+    assert!(html.contains(REGISTRATION_SUCCESSFUL));
+    let html = app.get_html("/").await;
+    assert!(!html.contains(REGISTRATION_SUCCESSFUL));
 
     assert!(check_if_username_exist(&app.db_pool, username.as_str())
         .await
@@ -46,7 +51,7 @@ async fn register_post_works() {
 async fn username_is_too_long() {
     let app = spawn_app().await;
 
-    let username: String = 300.fake();
+    let username: String = 251.fake();
     let password = uuid::Uuid::new_v4().to_string();
 
     let register_body = serde_json::json!({
@@ -58,7 +63,10 @@ async fn username_is_too_long() {
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/register");
 
-    // TODO: Check flash message for: register failed - username to long
+    let html = app.get_html("/register").await;
+    assert!(html.contains(REGISTRATION_FAILED_USERNAME_TOO_LONG));
+    let html = app.get_html("/register").await;
+    assert!(!html.contains(REGISTRATION_FAILED_USERNAME_TOO_LONG));
 }
 
 #[tokio::test]
@@ -76,7 +84,10 @@ async fn username_is_too_short() {
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/register");
 
-    // TODO: Check flash message for: register failed - username field is empty
+    let html = app.get_html("/register").await;
+    assert!(html.contains(REGISTRATION_FAILED_USERNAME_TOO_SHORT));
+    let html = app.get_html("/register").await;
+    assert!(!html.contains(REGISTRATION_FAILED_USERNAME_TOO_SHORT));
 }
 
 #[tokio::test]
@@ -95,18 +106,10 @@ async fn register_short_password() {
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/register");
 
-    // TODO: Check flash message for: register failed - password field is empty
-
-    let register_body = serde_json::json!({
-        "username": username,
-        "password": password,
-        "confirm_password": "",
-    });
-
-    let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/register");
-
-    // TODO: Check flash message for: register failed - password field is empty
+    let html = app.get_html("/register").await;
+    assert!(html.contains(REGISTRATION_FAILED_PASSWORD_TOO_SHORT));
+    let html = app.get_html("/register").await;
+    assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_TOO_SHORT));
 }
 
 #[tokio::test]
@@ -125,12 +128,16 @@ async fn username_is_already_used() {
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/");
 
-    // TODO: Check flash message for: register successful
+    let html = app.get_html("/").await;
+    assert!(html.contains(REGISTRATION_SUCCESSFUL));
 
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/register");
 
-    // TODO: Check flash message for: register failed - username is already used
+    let html = app.get_html("/register").await;
+    assert!(html.contains(REGISTRATION_FAILED_USERNAME_USED));
+    let html = app.get_html("/register").await;
+    assert!(!html.contains(REGISTRATION_FAILED_USERNAME_USED));
 }
 
 #[tokio::test]
@@ -148,5 +155,8 @@ async fn password_and_confirm_password_is_not_equal() {
     let response = app.post_body(&register_body, "/register").await;
     assert_is_redirect_to(&response, "/register");
 
-    // TODO: Check flash message for: register failed - username is already used
+    let html = app.get_html("/register").await;
+    assert!(html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
+    let html = app.get_html("/register").await;
+    assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
 }
