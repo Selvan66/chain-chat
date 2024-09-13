@@ -1,4 +1,4 @@
-use chain_chat::database::check_if_username_exist;
+use chain_chat::database::users::check_if_username_exist;
 use fake::faker::name;
 use fake::Fake;
 

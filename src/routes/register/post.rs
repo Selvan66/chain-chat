@@ -4,8 +4,9 @@ use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
 
 use crate::{
+    authentication::compute_password_hash,
     database::users::{add_user, check_if_username_exist},
-    domain::user::User,
+    domain::User,
     utils::{e500, see_other},
 };
 
@@ -55,7 +56,7 @@ pub async fn register_post(
         User {
             user_id: uuid::Uuid::new_v4(),
             username: form.username.to_string(),
-            password_hash: form.password.clone(),
+            password_hash: compute_password_hash(form.password.clone()).map_err(e500)?,
         },
     )
     .await
