@@ -4,6 +4,9 @@
     <title>Home</title>
   </head>
   <body>
+    {% if message is defined %}
+      <h2>{{ message }}</h2>
+    {% endif %}
     <p>Welcome</p>
     <p>Chain chat</p>
   </body>
