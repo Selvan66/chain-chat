@@ -163,8 +163,12 @@ def run_sqlx_migration():
     return True
 
 
-if __name__ == "__main__":
+def main():
     check_commands()
     run_mysql_container()
     wait_until_mysql_start()
     run_sqlx_migration()
+
+
+if __name__ == "__main__":
+    main()

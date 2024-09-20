@@ -5,3 +5,4 @@ Cargo.lock
 
 # Python
 /scripts/venv
+/scripts/__pycache__
