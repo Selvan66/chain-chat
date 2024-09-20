@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Register</title>
+  </head>
+  <body>
+    {% if flash_message is defined %}
+      <i>{{ flash_message }}</i>
+    {% endif %}
+    <form action="/register" method="post">
+      <label>Username
+        <input
+          type="text"
+          placeholder="Enter Username"
+          name="username"
+          required
+        >
+      <br>
+      </label>
+      <label>Password
+        <input
+          type="password"
+          placeholder="Enter Password"
+          name="password"
+          required
+          >
+      </label>
+      <br>
+      <label>Confirm password
+        <input
+          type="password"
+          placeholder="Confirm Password"
+          name="confirm_password"
+          required
+          >
+      </label>
+      <br>
+      <button type="submit">Register</button>
+    </form>
+  </body>
+</html>

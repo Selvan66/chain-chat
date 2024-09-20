@@ -95,12 +95,11 @@ async fn register_short_password() {
     let app = spawn_app().await;
 
     let username: String = name::en::Name().fake();
-    let password = uuid::Uuid::new_v4().to_string();
 
     let register_body = serde_json::json!({
         "username": username,
         "password": "a",
-        "confirm_password": password,
+        "confirm_password": "a",
     });
 
     let response = app.post_body(&register_body, "/register").await;
