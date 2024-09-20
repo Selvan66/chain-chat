@@ -4,10 +4,10 @@ use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
 
 use crate::{
-    authentication::compute_password_hash,
+    cryptografic::compute_password_hash,
     database::users::{add_user, check_if_username_exist},
-    domain::User,
-    utils::{e500, see_other},
+    domain::{messages::*, User},
+    utils::{e500, see_other_with_flash},
 };
 
 #[derive(serde::Deserialize, Debug)]
@@ -24,23 +24,31 @@ pub async fn register_post(
     pool: web::Data<MySqlPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     if form.username.len() < 4 {
-        // TODO: Flash message: Username too short
-        return Ok(see_other("/register"));
+        return Ok(see_other_with_flash(
+            "/register",
+            REGISTRATION_FAILED_USERNAME_TOO_SHORT,
+        ));
     }
 
     if form.username.len() > 250 {
-        // TODO: Flash message: Username too long
-        return Ok(see_other("/register"));
+        return Ok(see_other_with_flash(
+            "/register",
+            REGISTRATION_FAILED_USERNAME_TOO_LONG,
+        ));
     }
 
     if form.password.expose_secret() != form.confirm_password.expose_secret() {
-        // TODO: Flash message: Password not equal
-        return Ok(see_other("/register"));
+        return Ok(see_other_with_flash(
+            "/register",
+            REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM,
+        ));
     }
 
     if form.password.expose_secret().len() < 4 {
-        // TODO: Flash message: Password too short
-        return Ok(see_other("/register"));
+        return Ok(see_other_with_flash(
+            "/register",
+            REGISTRATION_FAILED_PASSWORD_TOO_SHORT,
+        ));
     }
 
     if check_if_username_exist(&pool, &form.username)
@@ -48,7 +56,10 @@ pub async fn register_post(
         .map_err(e500)?
     {
         // TODO Flash message: username used
-        return Ok(see_other("/register"));
+        return Ok(see_other_with_flash(
+            "/register",
+            REGISTRATION_FAILED_USERNAME_USED,
+        ));
     }
 
     add_user(
@@ -66,5 +77,5 @@ pub async fn register_post(
     tracing::info!("User {} registered", form.username);
 
     // TODO: Flash message: Register successful
-    Ok(see_other("/"))
+    Ok(see_other_with_flash("/", REGISTRATION_SUCCESSFUL))
 }
