@@ -159,3 +159,8 @@ async fn password_and_confirm_password_is_not_equal() {
     let html = app.get_html("/register").await;
     assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
 }
+
+#[tokio::test]
+async fn cannot_register_if_you_are_login() {
+    todo!()
+}

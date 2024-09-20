@@ -5,6 +5,9 @@
     <title>Login</title>
   </head>
   <body>
+    {% if flash_message is define %}
+      <i>{{ flash_message }}</i>
+    {% endif %}
     <form action="/login" method="post">
       <label>Username
         <input
