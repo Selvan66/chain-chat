@@ -1,6 +1,6 @@
 application:
   port: 8000
-  key: "b7ef313d-836f-4846-91e3-7438c6a6d21c"
+  key: "b7ef313d-836f-4846-91e3-7438c6a6d21cb7ef313d-836f-4846-91e3-7438c6a6d21c"
 database:
   host: "127.0.0.1"
   port: 3306
