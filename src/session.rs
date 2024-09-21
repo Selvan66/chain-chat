@@ -1,6 +1,9 @@
+use std::future::{ready, Ready};
 use std::ops::Deref;
 
-use actix_session::{Session, SessionGetError, SessionInsertError};
+use actix_session::{Session, SessionExt, SessionGetError, SessionInsertError};
+use actix_web::dev::Payload;
+use actix_web::{FromRequest, HttpRequest};
 use uuid::Uuid;
 
 #[derive(Copy, Clone, Debug)]
@@ -39,5 +42,14 @@ impl UserSession {
 
     pub fn get_user_id(&self) -> Result<Option<Uuid>, SessionGetError> {
         self.0.get(Self::USER_ID_KEY)
+    }
+}
+
+impl FromRequest for UserSession {
+    type Error = <Session as FromRequest>::Error;
+    type Future = Ready<Result<UserSession, Self::Error>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        ready(Ok(UserSession(req.get_session())))
     }
 }

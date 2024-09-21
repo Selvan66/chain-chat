@@ -11,7 +11,7 @@ use crate::{
 };
 
 #[derive(serde::Deserialize, Debug)]
-pub struct FormData {
+struct FormData {
     username: String,
     password: Secret<String>,
     confirm_password: Secret<String>,
@@ -24,29 +24,33 @@ pub async fn register_post(
     pool: web::Data<MySqlPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     if form.username.len() < 4 {
+        tracing::error!(REGISTRATION_FAILED_USERNAME_TOO_SHORT);
         return Ok(see_other_with_flash(
-            "/register",
+            "/auth/register",
             REGISTRATION_FAILED_USERNAME_TOO_SHORT,
         ));
     }
 
     if form.username.len() > 250 {
+        tracing::error!(REGISTRATION_FAILED_USERNAME_TOO_LONG);
         return Ok(see_other_with_flash(
-            "/register",
+            "/auth/register",
             REGISTRATION_FAILED_USERNAME_TOO_LONG,
         ));
     }
 
     if form.password.expose_secret() != form.confirm_password.expose_secret() {
+        tracing::error!(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM);
         return Ok(see_other_with_flash(
-            "/register",
+            "/auth/register",
             REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM,
         ));
     }
 
     if form.password.expose_secret().len() < 4 {
+        tracing::error!(REGISTRATION_FAILED_PASSWORD_TOO_SHORT);
         return Ok(see_other_with_flash(
-            "/register",
+            "/auth/register",
             REGISTRATION_FAILED_PASSWORD_TOO_SHORT,
         ));
     }
@@ -55,9 +59,9 @@ pub async fn register_post(
         .await
         .map_err(e500)?
     {
-        // TODO Flash message: username used
+        tracing::error!(REGISTRATION_FAILED_USERNAME_USED);
         return Ok(see_other_with_flash(
-            "/register",
+            "/auth/register",
             REGISTRATION_FAILED_USERNAME_USED,
         ));
     }
@@ -76,6 +80,5 @@ pub async fn register_post(
 
     tracing::info!("User {} registered", form.username);
 
-    // TODO: Flash message: Register successful
     Ok(see_other_with_flash("/", REGISTRATION_SUCCESSFUL))
 }

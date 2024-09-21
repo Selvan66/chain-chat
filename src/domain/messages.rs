@@ -5,3 +5,4 @@ pub static REGISTRATION_FAILED_PASSWORD_TOO_SHORT: &str = "Cannot register - pas
 pub static REGISTRATION_FAILED_USERNAME_USED: &str = "Cannot register - username already exists";
 pub static REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM: &str =
     "Cannot register - passwords are not the same";
+pub static USER_LOGIN: &str = "User login";

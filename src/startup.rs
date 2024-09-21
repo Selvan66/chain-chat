@@ -4,7 +4,7 @@ use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::Key;
 use actix_web::dev::Server;
-use actix_web::middleware::Logger;
+use actix_web::middleware::{from_fn, Logger};
 use actix_web::{web, App, HttpServer};
 use anyhow::Context;
 use secrecy::ExposeSecret;
@@ -12,6 +12,7 @@ use sqlx::MySqlPool;
 
 use crate::configuration::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
+use crate::routes::auth::middleware::reject_logged_users;
 use crate::routes::{health_check, home_get, login_get, register_get, register_post};
 
 pub struct Application {
@@ -67,6 +68,7 @@ async fn run(
             .service(health_check)
             .service(
                 web::scope("/auth")
+                    .wrap(from_fn(reject_logged_users))
                     .service(login_get)
                     .service(register_get)
                     .service(register_post),

@@ -26,8 +26,10 @@ pub fn create_flash_cookie<'a>(value: &'a str) -> Cookie<'a> {
 
 pub fn delete_flash_cookie<'a>() -> Cookie<'a> {
     let mut cookie = Cookie::build("_flash", "")
+        .path("/")
         .secure(true)
         .http_only(true)
+        .same_site(SameSite::Strict)
         .finish();
 
     cookie.make_removal();

@@ -1,6 +1,7 @@
 use anyhow::Context;
-use secrecy::ExposeSecret;
+use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
+use uuid::Uuid;
 
 use crate::domain::User;
 
@@ -40,4 +41,23 @@ pub async fn add_user(pool: &MySqlPool, user: User) -> Result<(), anyhow::Error>
     .context("Failed to insert user to database")?;
 
     Ok(())
+}
+
+pub async fn get_user_id_and_password(
+    pool: &MySqlPool,
+    username: &str,
+) -> Result<Option<(String, Secret<String>)>, anyhow::Error> {
+    let row: Option<_> = sqlx::query!(
+        r#"
+    SELECT user_id, password_hash
+    FROM users
+    WHERE username = ?
+    "#,
+        username
+    )
+    .fetch_optional(pool)
+    .await
+    .context("Failed to preform a query to validate auth credentials.")?
+    .map(|row| (row.user_id, Secret::new(row.password_hash)));
+    Ok(row)
 }

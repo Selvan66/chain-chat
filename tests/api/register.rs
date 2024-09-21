@@ -11,11 +11,11 @@ use crate::helpers::spawn_app;
 async fn register_get_works() {
     let app = spawn_app().await;
 
-    let response = app.get_response("/register").await;
+    let response = app.get_response("/auth/register").await;
 
     assert!(response.status().is_success());
 
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(html.contains("Username"));
     assert!(html.contains("Password"));
     assert!(html.contains("Confirm password"));
@@ -34,7 +34,7 @@ async fn register_post_works() {
         "confirm_password": password,
     });
 
-    let response = app.post_body(&register_body, "/register").await;
+    let response = app.post_body(&register_body, "/auth/register").await;
     assert_is_redirect_to(&response, "/");
 
     let html = app.get_html("/").await;
@@ -60,12 +60,12 @@ async fn username_is_too_long() {
         "confirm_password": password,
     });
 
-    let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/register");
+    let response = app.post_body(&register_body, "/auth/register").await;
+    assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(html.contains(REGISTRATION_FAILED_USERNAME_TOO_LONG));
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(!html.contains(REGISTRATION_FAILED_USERNAME_TOO_LONG));
 }
 
@@ -81,12 +81,12 @@ async fn username_is_too_short() {
         "confirm_password": password,
     });
 
-    let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/register");
+    let response = app.post_body(&register_body, "/auth/register").await;
+    assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(html.contains(REGISTRATION_FAILED_USERNAME_TOO_SHORT));
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(!html.contains(REGISTRATION_FAILED_USERNAME_TOO_SHORT));
 }
 
@@ -102,12 +102,12 @@ async fn register_short_password() {
         "confirm_password": "a",
     });
 
-    let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/register");
+    let response = app.post_body(&register_body, "/auth/register").await;
+    assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(html.contains(REGISTRATION_FAILED_PASSWORD_TOO_SHORT));
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_TOO_SHORT));
 }
 
@@ -124,18 +124,18 @@ async fn username_is_already_used() {
         "confirm_password": password,
     });
 
-    let response = app.post_body(&register_body, "/register").await;
+    let response = app.post_body(&register_body, "/auth/register").await;
     assert_is_redirect_to(&response, "/");
 
     let html = app.get_html("/").await;
     assert!(html.contains(REGISTRATION_SUCCESSFUL));
 
-    let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/register");
+    let response = app.post_body(&register_body, "/auth/register").await;
+    assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(html.contains(REGISTRATION_FAILED_USERNAME_USED));
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(!html.contains(REGISTRATION_FAILED_USERNAME_USED));
 }
 
@@ -151,16 +151,37 @@ async fn password_and_confirm_password_is_not_equal() {
         "confirm_password": uuid::Uuid::new_v4().to_string(),
     });
 
-    let response = app.post_body(&register_body, "/register").await;
-    assert_is_redirect_to(&response, "/register");
+    let response = app.post_body(&register_body, "/auth/register").await;
+    assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
-    let html = app.get_html("/register").await;
+    let html = app.get_html("/auth/register").await;
     assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
 }
 
 #[tokio::test]
 async fn cannot_register_if_you_are_login() {
-    todo!()
+    let app = spawn_app().await;
+
+    //TODO: login
+
+    let response = app.get_response("/auth/register").await;
+    assert_is_redirect_to(&response, "/user/info");
+
+    //TODO: check flash message eg: PermissionDeny
+
+    let username: String = name::en::Name().fake();
+    let password = uuid::Uuid::new_v4().to_string();
+
+    let register_body = serde_json::json!({
+        "username": username,
+        "password": password,
+        "confirm_password": password,
+    });
+
+    let response = app.post_body(&register_body, "/auth/register").await;
+    assert_is_redirect_to(&response, "/user/info");
+
+    //TODO: check flash message eg: PermissionDeny
 }
