@@ -5,11 +5,13 @@ use secrecy::Secret;
 pub struct Settings {
     pub application: ApplicationSettings,
     pub database: DatabaseSettings,
+    pub redis_uri: Secret<String>,
 }
 
 #[derive(serde::Deserialize, Clone)]
 pub struct ApplicationSettings {
     pub port: u16,
+    pub key: Secret<String>,
     pub host: String,
 }
 
