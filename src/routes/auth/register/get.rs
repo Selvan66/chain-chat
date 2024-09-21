@@ -13,7 +13,7 @@ fn render_register_page(req: &HttpRequest) -> Result<String, anyhow::Error> {
     }
 
     Ok(tera
-        .render("register.html", &ctx)
+        .render("auth/register.html", &ctx)
         .context("Cannot render register page")?)
 }
 
