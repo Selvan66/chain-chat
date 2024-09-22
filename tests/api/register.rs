@@ -4,8 +4,9 @@ use fake::Fake;
 use chain_chat::database::users::check_if_username_exist;
 use chain_chat::domain::messages::*;
 
-use crate::helpers::assert::assert_is_redirect_to;
+use crate::helpers::assert::{assert_flash_message, assert_is_redirect_to};
 use crate::helpers::spawn_app;
+use crate::helpers::user::TestUser;
 
 #[tokio::test]
 async fn register_get_works() {
@@ -25,118 +26,87 @@ async fn register_get_works() {
 async fn register_post_works() {
     let app = spawn_app().await;
 
-    let username: String = name::en::Name().fake();
-    let password = uuid::Uuid::new_v4().to_string();
+    let user = TestUser::generate();
 
-    let register_body = serde_json::json!({
-        "username": username,
-        "password": password,
-        "confirm_password": password,
-    });
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/");
+    assert_flash_message(&app, "/", REGISTRATION_SUCCESSFUL).await;
 
-    let html = app.get_html("/").await;
-    assert!(html.contains(REGISTRATION_SUCCESSFUL));
-    let html = app.get_html("/").await;
-    assert!(!html.contains(REGISTRATION_SUCCESSFUL));
-
-    assert!(check_if_username_exist(&app.db_pool, username.as_str())
-        .await
-        .expect("Cannot query database"));
+    assert!(
+        check_if_username_exist(&app.db_pool, user.username.as_str())
+            .await
+            .expect("Cannot query database")
+    );
 }
 
 #[tokio::test]
 async fn username_is_too_long() {
     let app = spawn_app().await;
 
-    let username: String = 251.fake();
-    let password = uuid::Uuid::new_v4().to_string();
+    let mut user = TestUser::generate();
+    user.username = 251.fake();
 
-    let register_body = serde_json::json!({
-        "username": username,
-        "password": password,
-        "confirm_password": password,
-    });
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/auth/register").await;
-    assert!(html.contains(REGISTRATION_FAILED_USERNAME_TOO_LONG));
-    let html = app.get_html("/auth/register").await;
-    assert!(!html.contains(REGISTRATION_FAILED_USERNAME_TOO_LONG));
+    assert_flash_message(
+        &app,
+        "/auth/register",
+        REGISTRATION_FAILED_USERNAME_TOO_LONG,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn username_is_too_short() {
     let app = spawn_app().await;
 
-    let password = uuid::Uuid::new_v4().to_string();
+    let mut user = TestUser::generate();
+    user.username = "a".to_string();
 
-    let register_body = serde_json::json!({
-        "username": "a",
-        "password": password,
-        "confirm_password": password,
-    });
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/auth/register").await;
-    assert!(html.contains(REGISTRATION_FAILED_USERNAME_TOO_SHORT));
-    let html = app.get_html("/auth/register").await;
-    assert!(!html.contains(REGISTRATION_FAILED_USERNAME_TOO_SHORT));
+    assert_flash_message(
+        &app,
+        "/auth/register",
+        REGISTRATION_FAILED_USERNAME_TOO_SHORT,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn register_short_password() {
     let app = spawn_app().await;
 
-    let username: String = name::en::Name().fake();
+    let mut user = TestUser::generate();
+    user.password = "a".to_string();
 
-    let register_body = serde_json::json!({
-        "username": username,
-        "password": "a",
-        "confirm_password": "a",
-    });
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/auth/register").await;
-    assert!(html.contains(REGISTRATION_FAILED_PASSWORD_TOO_SHORT));
-    let html = app.get_html("/auth/register").await;
-    assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_TOO_SHORT));
+    assert_flash_message(
+        &app,
+        "/auth/register",
+        REGISTRATION_FAILED_PASSWORD_TOO_SHORT,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn username_is_already_used() {
     let app = spawn_app().await;
 
-    let username: String = name::en::Name().fake();
-    let password = uuid::Uuid::new_v4().to_string();
+    let user = TestUser::generate();
 
-    let register_body = serde_json::json!({
-        "username": username,
-        "password": password,
-        "confirm_password": password,
-    });
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/");
 
-    let html = app.get_html("/").await;
-    assert!(html.contains(REGISTRATION_SUCCESSFUL));
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    // Register second time
+    let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/auth/register").await;
-    assert!(html.contains(REGISTRATION_FAILED_USERNAME_USED));
-    let html = app.get_html("/auth/register").await;
-    assert!(!html.contains(REGISTRATION_FAILED_USERNAME_USED));
+    assert_flash_message(&app, "/auth/register", REGISTRATION_FAILED_USERNAME_USED).await;
 }
 
 #[tokio::test]
@@ -154,34 +124,35 @@ async fn password_and_confirm_password_is_not_equal() {
     let response = app.post_body(&register_body, "/auth/register").await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    let html = app.get_html("/auth/register").await;
-    assert!(html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
-    let html = app.get_html("/auth/register").await;
-    assert!(!html.contains(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM));
+    assert_flash_message(
+        &app,
+        "/auth/register",
+        REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM,
+    )
+    .await;
 }
 
 #[tokio::test]
 async fn cannot_register_if_you_are_login() {
     let app = spawn_app().await;
 
-    //TODO: login
+    let user = TestUser::generate();
 
+    // Register new user
+    let response = user.register(&app).await;
+    assert_is_redirect_to(&response, "/");
+
+    // Login new user
+    let response = user.login(&app).await;
+    assert_is_redirect_to(&response, "/user/info");
+
+    // Cannot register if you login
     let response = app.get_response("/auth/register").await;
     assert_is_redirect_to(&response, "/user/info");
+    assert_flash_message(&app, "/user/info", USER_LOGIN).await;
 
-    //TODO: check flash message eg: PermissionDeny
-
-    let username: String = name::en::Name().fake();
-    let password = uuid::Uuid::new_v4().to_string();
-
-    let register_body = serde_json::json!({
-        "username": username,
-        "password": password,
-        "confirm_password": password,
-    });
-
-    let response = app.post_body(&register_body, "/auth/register").await;
+    let new_user = TestUser::generate();
+    let response = new_user.register(&app).await;
     assert_is_redirect_to(&response, "/user/info");
-
-    //TODO: check flash message eg: PermissionDeny
+    assert_flash_message(&app, "/user/info", USER_LOGIN).await;
 }
