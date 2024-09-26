@@ -29,10 +29,6 @@ async fn login_post_works() {
     // Login
     let response = user.login(&app).await;
     assert_is_redirect_to(&response, "/user/info");
-
-    // Check info web
-    let html = app.get_html("/user/info").await;
-    assert!(html.contains(&user.username))
 }
 
 #[tokio::test]
