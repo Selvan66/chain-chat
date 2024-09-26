@@ -12,8 +12,10 @@ use sqlx::MySqlPool;
 
 use crate::configuration::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
-use crate::routes::auth::middleware::reject_logged_users;
-use crate::routes::{health_check, home_get, login_get, register_get, register_post};
+use crate::middleware::{reject_anonymous_users, reject_logged_users};
+use crate::routes::{
+    health_check, home_get, info_get, login_get, login_post, register_get, register_post,
+};
 
 pub struct Application {
     port: u16,
@@ -70,8 +72,14 @@ async fn run(
                 web::scope("/auth")
                     .wrap(from_fn(reject_logged_users))
                     .service(login_get)
+                    .service(login_post)
                     .service(register_get)
                     .service(register_post),
+            )
+            .service(
+                web::scope("/user")
+                    .wrap(from_fn(reject_anonymous_users))
+                    .service(info_get),
             )
             .app_data(db_pool.clone())
     })

@@ -2,6 +2,7 @@ pub mod configuration;
 pub mod cryptografic;
 pub mod database;
 pub mod domain;
+pub mod middleware;
 pub mod routes;
 pub mod session;
 pub mod startup;

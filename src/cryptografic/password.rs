@@ -1,8 +1,12 @@
 use anyhow::Context;
-use argon2::{password_hash::SaltString, Algorithm, Argon2, Params, PasswordHasher, Version};
+use argon2::{
+    password_hash::SaltString, Algorithm, Argon2, Params, PasswordHash, PasswordHasher,
+    PasswordVerifier, Version,
+};
 use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
-use uuid::Uuid;
+
+use crate::database::users::get_user_id_and_password;
 
 pub fn compute_password_hash(password: Secret<String>) -> Result<Secret<String>, anyhow::Error> {
     let salt = SaltString::generate(&mut rand::thread_rng());
@@ -22,9 +26,35 @@ pub async fn validate_login(
     username: String,
     password: Secret<String>,
     pool: &MySqlPool,
-) -> Result<Uuid, anyhow::Error> {
-    let mut user_id = None;
+) -> Result<String, anyhow::Error> {
+    let mut user_id: Option<String> = None;
     let mut expected_password_hash = Secret::new("$argon2id$v=19$m=15000,t=2,p=1$JDJiJDEyJHhIU3A5MlpmSUl0RUlRemFldTZUYy4$ucZ8s1uXegdnt6wAaIu8+/b+64j2bp10djXEgIuhZm0".to_string());
 
-    todo!()
+    if let Some((stored_user_id, stored_password_hash)) =
+        get_user_id_and_password(&pool, &username).await?
+    {
+        user_id = Some(stored_user_id);
+        expected_password_hash = stored_password_hash;
+    }
+
+    tokio::task::spawn_blocking(move || verify_password_hash(expected_password_hash, password))
+        .await
+        .context("Failed to spawn blocking task.")??;
+
+    user_id.ok_or_else(|| anyhow::anyhow!("Unknown username."))
+}
+
+fn verify_password_hash(
+    expected_password_hash: Secret<String>,
+    password_candidate: Secret<String>,
+) -> Result<(), anyhow::Error> {
+    let expected_password_hash = PasswordHash::new(&expected_password_hash.expose_secret())
+        .context("Failed to parse hash in PHC string format.")?;
+
+    Argon2::default()
+        .verify_password(
+            password_candidate.expose_secret().as_bytes(),
+            &expected_password_hash,
+        )
+        .context("Invalid password.")
 }
