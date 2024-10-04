@@ -3,6 +3,8 @@ Cargo.lock
 /target
 /log
 
+.env
+
 # Python
 /scripts/venv
 /scripts/__pycache__
