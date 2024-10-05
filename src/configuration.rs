@@ -1,21 +1,21 @@
 use config::{Config, File, FileFormat};
 use secrecy::Secret;
 
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct Settings {
     pub application: ApplicationSettings,
     pub database: DatabaseSettings,
     pub redis_uri: Secret<String>,
 }
 
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct ApplicationSettings {
     pub port: u16,
     pub key: Secret<String>,
     pub host: String,
 }
 
-#[derive(serde::Deserialize, Clone)]
+#[derive(serde::Deserialize, Clone, Debug)]
 pub struct DatabaseSettings {
     pub username: String,
     pub password: Secret<String>,
@@ -31,7 +31,7 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
     let config_base_file = config_dir.join("base");
     let environment = match std::env::var("APP_ENVIRONMENT") {
         Ok(s) => {
-            if s == "poduction" {
+            if s == "production" {
                 s
             } else {
                 "local".into()
@@ -39,6 +39,8 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
         }
         Err(_) => "local".into(),
     };
+
+    tracing::trace!("configuration environment = {}", environment);
 
     let settings = Config::builder()
         .add_source(File::new(
