@@ -1,0 +1,12 @@
+target/
+tests/
+scripts/
+migrations/
+log/
+
+README.md
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+docker-compose.override.yml.example
+.env.example
