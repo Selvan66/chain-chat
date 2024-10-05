@@ -2,8 +2,10 @@ Cargo.lock
 
 /target
 /log
+/.sqlx
 
 .env
+docker-compose.override.yml
 
 # Python
 /scripts/venv

@@ -18,7 +18,9 @@ tera = "1.20.0"
 
 actix-web = "4.9.0"
 actix-session = { version = "0.10.1", features = ["redis-session-rustls"] }
+# Configuration
 config = "0.14.0"
+dotenv = "0.15.0"
 # Cryptografic
 secrecy = { version = "0.8.0", features = ["serde"] }
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
@@ -46,7 +48,7 @@ features = [
   "migrate",
   "uuid",
   "chrono",
-  "runtime-tokio"
+  "runtime-tokio-rustls"
 ]
 
 [dev-dependencies]
