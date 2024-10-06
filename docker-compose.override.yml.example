@@ -1,0 +1,33 @@
+
+services:
+  mysql:
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_MYSQL_CPUS:-0}"
+          memory: "${DOCKER_MYSQL_MEMORY:-0}"
+    image: "mysql:9.0.1"
+    profiles: ["mysql"]
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    environment:
+      MYSQL_USER: "${MYSQL_USER:-user}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-mydb}"
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
+      MYSQL_HOST: "${MYSQL_HOST:-localhost}"
+    volumes:
+      - "mysql:/var/lib/mysql/data"
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_REDIS_CPUS:-0}"
+          memory: "${DOCKER_REDIS_MEMORY:-0}"
+    image: "redis:6"
+    profiles: ["redis"]
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    volumes:
+      - "redis:/data"

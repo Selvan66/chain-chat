@@ -39,4 +39,9 @@ RUN apt-get update -y \
 COPY --from=builder /app/target/release/chain-chat chain-chat
 COPY configuration configuration
 COPY templates templates
-ENV APP_ENVIRONMENT=production
+
+ENV RUST_LOG="${RUST_LOG}"
+
+ENTRYPOINT ["./chain-chat"]
+EXPOSE 8000
+

@@ -3,10 +3,13 @@ tests/
 scripts/
 migrations/
 log/
+.git/
+.github/
 
 README.md
-Dockerfile
-docker-compose.yml
+.env
+.dockerignore
 docker-compose.override.yml
-docker-compose.override.yml.example
-.env.example
+
+Cargo.lock
+
