@@ -1,0 +1,147 @@
+name: Rust
+
+on: [push, pull_request] #TODO: only on push on prod branch
+
+env:
+  CARGO_TERM_COLOR: always
+  SQLX_VERSION: 0.7.1
+  SQLX_FEATURES: "rustls,mysql"
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.39-bookworm
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DB: mydb
+        ports:
+          - 3306:3306
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Install the Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust Cache Action
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: sqlx-${{ env.SQLX_VERSION }}
+      
+      - name: Install sqlx-cli
+        run:
+          cargo install sqlx-cli
+            --version=${{ env.SQLX_VERSION }}
+            --features ${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Install python
+        run: sudo apt-get update && sudo apt-get python
+
+      - name: Install requirements
+        run: pip install -r scripts/requirements.txt
+
+      - name: Migrate database
+        run: python -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
+
+      - name: Run tests
+        run: cargo test
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Enforce formatting
+        run: cargo fmt --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.39-bookworm
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DB: mydb
+        ports:
+          - 3306:3306
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: sqlx-${{ env.SQLX_VERSION }}
+      
+      - name: Install sqlx-cli
+        run:
+          cargo install sqlx-cli
+            --version=${{ env.SQLX_VERSION }}
+            --features ${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Install python
+        run: sudo apt-get update && sudo apt-get python
+
+      - name: Install requirements
+        run: pip install -r scripts/requirements.txt
+
+      - name: Migrate database
+        run: python -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
+
+      - name: Linting
+        run: cargo clippy -- -D warnings
+
+  coverage:
+    name: Code coverage
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.39-bookworm
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DB: mydb
+        ports:
+          - 3306:3306
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - uses: dtolnay/rust-toolchain@stable 
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: sqlx-${{ env.SQLX_VERSION }}
+
+      - name: Install sqlx-cli
+        run:
+          cargo install sqlx-cli
+            --version=${{ env.SQLX_VERSION }}
+            --features ${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Install python
+        run: sudo apt-get update && sudo apt-get python
+
+      - name: Install requirements
+        run: pip install -r scripts/requirements.txt
+
+      - name: Migrate database
+        run: python -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
+
+      - name: Generate code coverage
+        run: cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace
