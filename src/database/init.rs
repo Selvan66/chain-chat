@@ -29,3 +29,11 @@ pub fn get_db_pool(connection: MySqlConnectOptions) -> MySqlPool {
         .acquire_timeout(std::time::Duration::from_secs(2))
         .connect_lazy_with(connection)
 }
+
+pub async fn health_check(pool: &MySqlPool) -> bool {
+    sqlx::query!("SELECT TRUE")
+        .fetch_one(pool)
+        .await
+        .map(|r| r.TRUE != 0)
+        .unwrap_or(false)
+}
