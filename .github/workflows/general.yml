@@ -14,6 +14,7 @@ env:
   CARGO_TERM_COLOR: always
   SQLX_VERSION: 0.7.1
   SQLX_FEATURES: "rustls,mysql"
+  DATABASE_URL: "mysql://user:password@localhost:3306/mydb"
 
 jobs:
   test:
@@ -26,7 +27,6 @@ jobs:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
-          MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
 
@@ -60,7 +60,7 @@ jobs:
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Run tests
-        run: DATABASE_URL="mysql://user:password@localhost:3306/mydb" cargo test
+        run: cargo test
 
   fmt:
     name: Rustfmt
@@ -83,7 +83,6 @@ jobs:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
-          MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
     steps:
@@ -113,7 +112,7 @@ jobs:
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Linting
-        run: DATABASE_URL="mysql://user:password@localhost:3306/mydb" cargo clippy -- -D warnings
+        run: cargo clippy -- -D warnings
 
   coverage:
     name: Code coverage
@@ -125,7 +124,6 @@ jobs:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
-          MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
     steps:
@@ -155,4 +153,4 @@ jobs:
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
 
       - name: Generate code coverage
-        run: DATABASE_URL="mysql://user:password@localhost:3306/mydb" cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace
+        run: cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace
