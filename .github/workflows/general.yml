@@ -42,7 +42,7 @@ jobs:
             --locked
 
       - name: Install python
-        run: sudo apt-get update && sudo apt-get python3
+        run: sudo apt-get update && sudo apt-get install python3
 
       - name: Install requirements
         run: pip3 install -r scripts/requirements.txt
@@ -94,13 +94,13 @@ jobs:
             --locked
 
       - name: Install python
-        run: sudo apt-get update && sudo apt-get python
+        run: sudo apt-get update && sudo apt-get install python3
 
       - name: Install requirements
-        run: pip install -r scripts/requirements.txt
+        run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        run: python -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
+        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Linting
         run: cargo clippy -- -D warnings
@@ -135,13 +135,13 @@ jobs:
             --locked
 
       - name: Install python
-        run: sudo apt-get update && sudo apt-get python
+        run: sudo apt-get update && sudo apt-get install python3
 
       - name: Install requirements
-        run: pip install -r scripts/requirements.txt
+        run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        run: python -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
+        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
 
       - name: Generate code coverage
         run: cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace
