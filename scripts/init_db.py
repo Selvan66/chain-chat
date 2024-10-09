@@ -46,6 +46,7 @@ def get_mysql_env():
         ),
     )
 
+    print("GET_MYSQL_ENV", env["DATABASE_URL"])
     return env
 
 

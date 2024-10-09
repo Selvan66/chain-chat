@@ -14,7 +14,6 @@ env:
   CARGO_TERM_COLOR: always
   SQLX_VERSION: 0.7.1
   SQLX_FEATURES: "rustls,mysql"
-  DATABASE_URL: "mysql://user:password@localhost:3306/mydb"
 
 jobs:
   test:
@@ -60,7 +59,7 @@ jobs:
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Run tests
-        run: cargo test
+        run: DATABASE_URL="mysql://user:password@localhost:3306/mydb" cargo test
 
   fmt:
     name: Rustfmt
@@ -112,7 +111,7 @@ jobs:
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Linting
-        run: cargo clippy -- -D warnings
+        run: DATABASE_URL="mysql://user:password@localhost:3306/mydb" cargo clippy -- -D warnings
 
   coverage:
     name: Code coverage
@@ -153,4 +152,4 @@ jobs:
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
 
       - name: Generate code coverage
-        run: cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace
+        run: cargo install cargo-tarpaulin && DATABASE_URL="mysql://user:password@localhost:3306/mydb" cargo tarpaulin --verbose --workspace
