@@ -1,6 +1,14 @@
 name: Rust
 
-on: [push, pull_request] #TODO: only on push on prod branch
+on:
+  push:
+    branches:
+      - prod
+      - main
+  pull_request:
+    branches:
+      - prod
+      - main
 
 env:
   CARGO_TERM_COLOR: always

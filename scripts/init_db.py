@@ -126,14 +126,11 @@ def wait_until_mysql_start():
 def run_sqlx_migration():
     print("Start sqlx migration")
     env = get_mysql_env()
-    sqlx_env = os.environ
-    sqlx_env["DATABASE_URL"]: env["DATABASE_URL"]
 
     result = subprocess.run(
-        "sqlx database create",
+        f"sqlx database create --database_url {env["DATABASE_URL"]}",
         shell=True,
         check=False,
-        env=sqlx_env,
         capture_output=True,
         text=True,
     )
@@ -145,10 +142,9 @@ def run_sqlx_migration():
     print("\n".join([f"\t{line}" for line in result.stdout.split("\n")]))
 
     result = subprocess.run(
-        "sqlx migrate run",
+        f"sqlx migrate run --database_url {env["DATABASE_URL"]}",
         shell=True,
         check=False,
-        env=sqlx_env,
         capture_output=True,
         text=True,
     )
