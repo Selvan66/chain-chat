@@ -17,7 +17,8 @@ jobs:
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
-          MYSQL_DB: mydb
+          MYSQL_DATABASE: mydb
+          MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
 
@@ -73,7 +74,8 @@ jobs:
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
-          MYSQL_DB: mydb
+          MYSQL_DATABASE: mydb
+          MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
     steps:
@@ -114,7 +116,8 @@ jobs:
         env:
           MYSQL_USER: user
           MYSQL_PASSWORD: password
-          MYSQL_DB: mydb
+          MYSQL_DATABASE: mydb
+          MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
     steps:
