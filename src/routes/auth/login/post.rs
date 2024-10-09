@@ -1,23 +1,30 @@
 use actix_web::{web, HttpResponse};
-use sqlx::MySqlPool;
 use secrecy::Secret;
+use sqlx::MySqlPool;
 
-use crate::{cryptografic::validate_login, domain::messages::AUTHENTICATION_FAILED, session::UserSession, utils::{e500, see_other, see_other_with_flash}};
-
-
+use crate::{
+    cryptografic::validate_login,
+    domain::messages::AUTHENTICATION_FAILED,
+    session::UserSession,
+    utils::{e500, see_other, see_other_with_flash},
+};
 
 #[derive(serde::Deserialize, Debug)]
 struct FormData {
     username: String,
-    password: Secret<String>
+    password: Secret<String>,
 }
 
 #[tracing::instrument(
-    skip_all, 
+    skip_all,
     fields(username = form.username)
 )]
 #[actix_web::post("/login")]
-pub async fn login_post(form: web::Form<FormData>, pool: web::Data<MySqlPool>, session: UserSession) -> Result<HttpResponse, actix_web::Error> {
+pub async fn login_post(
+    form: web::Form<FormData>,
+    pool: web::Data<MySqlPool>,
+    session: UserSession,
+) -> Result<HttpResponse, actix_web::Error> {
     match validate_login(form.0.username, form.0.password, &pool).await {
         Ok(user_id) => {
             tracing::info!("User {} login!", user_id);

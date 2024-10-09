@@ -42,13 +42,13 @@ jobs:
             --locked
 
       - name: Install python
-        run: sudo apt-get update && sudo apt-get python
+        run: sudo apt-get update && sudo apt-get python3
 
       - name: Install requirements
-        run: pip install -r scripts/requirements.txt
+        run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        run: python -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
+        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Run tests
         run: cargo test
