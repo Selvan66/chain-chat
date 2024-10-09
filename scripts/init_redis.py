@@ -40,7 +40,7 @@ def create_redis_container(docker_client):
     port = env["REDIS_PORT"]
     try:
         container = docker_client.containers.run(
-            "redis",
+            "redis:7.4.1-bookworm",
             name=REDIS_CONTAINER_NAME,
             detach=True,
             ports={f"{port}/tcp": f"{port}"},

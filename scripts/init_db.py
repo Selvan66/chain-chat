@@ -62,7 +62,7 @@ def create_mysql_container(docker_client):
     port = env["MYSQL_PORT"]
     try:
         container = docker_client.containers.run(
-            "mysql",
+            "mysql:8.0.39-bookworm",
             name=MYSQL_CONTAINER_NAME,
             detach=True,
             ports={f"{port}/tcp": f"{port}"},
@@ -139,7 +139,7 @@ def run_sqlx_migration():
     )
 
     if result.returncode != 0:
-        print("\tSqlx cannot create database")
+        print(f"\tSqlx cannot create database\n\t Error: {result.stderr}")
         return False
 
     print("\n".join([f"\t{line}" for line in result.stdout.split("\n")]))
@@ -154,7 +154,7 @@ def run_sqlx_migration():
     )
 
     if result.returncode != 0:
-        print("\tSqlx cannot run migrations")
+        print(f"\tSqlx cannot run migrations\n\t Error: {result.stderr}")
         return False
 
     print("\n".join([f"\t{line}" for line in result.stdout.split("\n")]))
