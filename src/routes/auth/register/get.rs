@@ -12,9 +12,8 @@ fn render_register_page(req: &HttpRequest) -> Result<String, anyhow::Error> {
         ctx.insert("flash_message", flash_cookie.value());
     }
 
-    Ok(tera
-        .render("auth/register.html", &ctx)
-        .context("Cannot render register page")?)
+    tera.render("auth/register.html", &ctx)
+        .context("Cannot render register page")
 }
 
 #[actix_web::get("/register")]

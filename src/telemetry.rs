@@ -58,13 +58,12 @@ pub fn init_tracing_logger(log_config: LogConfig, env_filter: String) -> WorkerG
     let subscriber = Registry::default().with(env_filter).with(layer);
 
     // Ignore errors - tests call init_tracing_logger multiple times.
-    match LogTracer::init() {
-        Err(e) => tracing::warn!("Logger LogTracer::init | Ignored {}", e),
-        _ => (),
+    if let Err(e) = LogTracer::init() {
+        tracing::warn!("Logger LogTracer::init | Ignored {}", e);
     }
-    match set_global_default(subscriber) {
-        Err(e) => tracing::warn!("Logger set_global_default | Ignored {}", e),
-        _ => (),
+    if let Err(e) = set_global_default(subscriber) {
+        tracing::warn!("Logger set_global_default | Ignored {}", e);
     }
+
     guard
 }

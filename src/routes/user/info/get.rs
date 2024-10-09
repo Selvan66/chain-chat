@@ -18,9 +18,8 @@ fn render_info_page(req: &HttpRequest, username: &str) -> Result<String, anyhow:
 
     ctx.insert("username", username);
 
-    Ok(tera
-        .render("user/info.html", &ctx)
-        .context("Cannot render login page")?)
+    tera.render("user/info.html", &ctx)
+        .context("Cannot render login page")
 }
 
 #[actix_web::get("/info")]

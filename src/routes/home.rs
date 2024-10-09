@@ -12,9 +12,8 @@ fn render_home_page(req: &HttpRequest) -> Result<String, anyhow::Error> {
         ctx.insert("flash_message", flash_cookie.value());
     }
 
-    Ok(tera
-        .render("home.html", &ctx)
-        .context("Cannot render home page")?)
+    tera.render("home.html", &ctx)
+        .context("Cannot render home page")
 }
 
 #[actix_web::get("/")]

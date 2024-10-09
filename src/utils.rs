@@ -15,7 +15,7 @@ pub fn see_other_with_flash(location: &str, flash_message: &str) -> HttpResponse
         .finish()
 }
 
-pub fn create_flash_cookie<'a>(value: &'a str) -> Cookie<'a> {
+pub fn create_flash_cookie(value: &str) -> Cookie {
     Cookie::build("_flash", value)
         .path("/")
         .secure(true)

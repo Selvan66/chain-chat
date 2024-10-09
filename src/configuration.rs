@@ -27,7 +27,7 @@ pub struct DatabaseSettings {
 }
 
 pub fn get_configuration() -> Result<Settings, anyhow::Error> {
-    dotenv::dotenv().context("Failed to load dotenv")?;
+    dotenv::dotenv().ok();
 
     let base_path = std::env::current_dir().context("Failed to determine the current directory")?;
     let config_dir = base_path.join("configuration");
