@@ -15,7 +15,7 @@ repos:
         entry: cargo fmt
         language: system
         types: [rust]
-        args: ["--check"]
+        args: ["--check", "--"]
         stages: [commit]
       - id: clippy
         name: Cargo clippy
