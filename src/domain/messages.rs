@@ -7,3 +7,4 @@ pub static REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM: &str =
     "Cannot register - passwords are not the same";
 pub static USER_LOGIN: &str = "User already login";
 pub static AUTHENTICATION_FAILED: &str = "Authentication failed";
+pub static LOGOUT_MESSAGE: &str = "You have successfully logged out";

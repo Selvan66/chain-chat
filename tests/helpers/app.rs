@@ -39,6 +39,14 @@ impl TestApp {
             .form(body)
             .send()
             .await
+            .expect("Failed to POST with body")
+    }
+
+    pub async fn post(&self, path: &str) -> reqwest::Response {
+        self.api_client
+            .post(&format!("{}{}", self.address, path))
+            .send()
+            .await
             .expect("Failed to POST")
     }
 }

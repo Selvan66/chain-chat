@@ -14,7 +14,8 @@ use crate::configuration::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
 use crate::middleware::{reject_anonymous_users, reject_logged_users};
 use crate::routes::{
-    health_check, home_get, info_get, login_get, login_post, register_get, register_post,
+    health_check, home_get, info_get, login_get, login_post, logout_post, register_get,
+    register_post,
 };
 
 pub struct Application {
@@ -85,7 +86,8 @@ async fn run(
             .service(
                 web::scope("/user")
                     .wrap(from_fn(reject_anonymous_users))
-                    .service(info_get),
+                    .service(info_get)
+                    .service(logout_post),
             )
             .app_data(db_pool.clone())
     })
