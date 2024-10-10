@@ -64,7 +64,7 @@ pub async fn spawn_app() -> TestApp {
         .build()
         .expect("Failed to build client");
 
-    let guard = init_tracing_logger(LogConfig::File("log/test_log.txt".into()), "info".into());
+    let guard = init_tracing_logger(LogConfig::Stdout, "info".into());
 
     TestApp {
         address: format!("http://localhost:{}", application_port),
