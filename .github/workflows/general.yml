@@ -14,7 +14,7 @@ env:
   CARGO_TERM_COLOR: always
   SQLX_VERSION: 0.7.1
   SQLX_FEATURES: "rustls,mysql"
-  DATABASE_URL: "mysql://root:password@localhost:3306/mydb"
+  DATABASE_URL: "mysql://user:password@localhost:3306/mydb"
   
 jobs:
   test:
@@ -24,10 +24,16 @@ jobs:
       mysql:
         image: mysql:8.0.39-bookworm
         env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
           MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
+      redis:
+        image: redis:7.4.1-bookworm
+        ports:
+          - 6379:6379
 
     steps:
       - name: Check out repository code
@@ -56,8 +62,6 @@ jobs:
         run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        env:
-          MYSQL_USER: root
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Run tests
@@ -83,6 +87,8 @@ jobs:
       mysql:
         image: mysql:8.0.39-bookworm
         env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
           MYSQL_ROOT_PASSWORD: password
         ports:
@@ -111,8 +117,6 @@ jobs:
         run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        env:
-          MYSQL_USER: root
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Linting
@@ -125,10 +129,16 @@ jobs:
       mysql:
         image: mysql:8.0.39-bookworm
         env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
           MYSQL_ROOT_PASSWORD: password
         ports:
           - 3306:3306
+      redis:
+        image: redis:7.4.1-bookworm
+        ports:
+          - 6379:6379
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -153,8 +163,6 @@ jobs:
         run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        env:
-          MYSQL_USER: root
         run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
 
       - name: Generate code coverage
