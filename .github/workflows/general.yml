@@ -24,8 +24,6 @@ jobs:
       mysql:
         image: mysql:8.0.39-bookworm
         env:
-          MYSQL_USER: root
-          MYSQL_PASSWORD: password
           MYSQL_DATABASE: mydb
           MYSQL_ROOT_PASSWORD: password
         ports:
