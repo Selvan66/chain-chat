@@ -17,6 +17,7 @@ repos:
         types: [rust]
         args: ["--check", "--"]
         stages: [commit]
+        verbose: true
       - id: clippy
         name: Cargo clippy
         description: Run the Clippy linter
@@ -26,6 +27,7 @@ repos:
         args: ["--", "-D", "warnings"]
         stages: [commit]
         pass_filenames: false
+        verbose: true
       - id: test
         name: Cargo test
         description: Run cargo test
@@ -33,3 +35,5 @@ repos:
         language: system
         types: [rust]
         stages: [push]
+        pass_filenames: false
+        verbose: true
