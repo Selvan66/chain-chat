@@ -43,7 +43,7 @@ pub fn get_configuration() -> Result<Settings, anyhow::Error> {
         Err(_) => "local".into(),
     };
 
-    tracing::trace!("Configuration environment = {}", environment);
+    tracing::info!("Configuration environment = {}", environment);
 
     let settings = Config::builder()
         .add_source(
