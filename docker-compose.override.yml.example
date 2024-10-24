@@ -6,7 +6,7 @@ services:
         limits:
           cpus: "${DOCKER_MYSQL_CPUS:-0}"
           memory: "${DOCKER_MYSQL_MEMORY:-0}"
-    image: "mysql:9.0.1"
+    image: "mysql:8.0.39-bookworm"
     profiles: ["mysql"]
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
@@ -18,6 +18,11 @@ services:
       MYSQL_HOST: "${MYSQL_HOST:-localhost}"
     volumes:
       - "mysql:/var/lib/mysql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -u ${MYSQL_USER} -p${MYSQL_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   redis:
     deploy:
@@ -25,9 +30,18 @@ services:
         limits:
           cpus: "${DOCKER_REDIS_CPUS:-0}"
           memory: "${DOCKER_REDIS_MEMORY:-0}"
-    image: "redis:6"
+    image: "redis:7.4.1-bookworm"
     profiles: ["redis"]
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
     volumes:
       - "redis:/data"
+    healthcheck:
+      test: ["CMD", "redis-cli ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  mysql: {}
+  redis: {}

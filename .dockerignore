@@ -10,6 +10,6 @@ README.md
 .env
 .dockerignore
 docker-compose.override.yml
+.pre-commit-config.yaml
 
 Cargo.lock
-
