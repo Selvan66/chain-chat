@@ -5,6 +5,7 @@ Cargo.lock
 /.sqlx
 
 .env
+.env.prod
 docker-compose.override.yml
 
 # Python

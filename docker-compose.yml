@@ -1,41 +1,55 @@
-services:
+x-build: &default-build
   build:
+    context: "."
+  env_file:
+    - ".env"
+  restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+  stop_grace_period: "0"
+  tty: true
+  deploy:
+    resources:
+      limits:
+        cpus: "${DOCKER_BUILD_CPUS:-0}"
+        memory: "${DOCKER_BUILD_MEMORY:-0}"
+  networks:
+    - back-end
+
+services:
+  base:
+    <<: *default-build
+    build:
+      target: "base"
+    profiles: ["base"]
+
+  planner:
+    <<: *default-build
+    build:
+      target: "planner"
+    depends_on:
+      - base
+    profiles: ["planner"]
+
+  builder:
+    <<: *default-build
+    build:
+      target: "builder"
+    depends_on:
+      - planner
+    profiles: ["builder"]
+
+  runtime:
     build:
       context: "."
-      target: "build"
-      args:
-          - "DATABASE_URL=${DATABASE_URL:-mysql://${MYSQL_USER:-user}:${MYSQL_PASSWORD:-password}@${MYSQL_HOST:-localhost}:${MYSQL_PORT:-3306}/${MYSQL_DATABASE:-mydb}}"
+      target: "runtime"
     depends_on:
       mysql:
         condition: "service_started"
-        required: false
       redis:
         condition: "service_started"
-        required: false
-    env_file:
-      - ".env"
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-    stop_grace_period: "0"
-    tty: true
-    deploy:
-      resources:
-        limits:
-          cpus: "${DOCKER_BUILD_CPUS:-0}"
-          memory: "${DOCKER_BUILD_MEMORY:-0}"
-    ports:
-      - 8000:8000
-    profiles: ["build"]
-    networks:
-      - back-end
-
-  app:
-    build:
-      context: "."
-      target: "app"
-      args:
-        - "APP_ENVIRONMENT=${APP_ENVIRONMENT:-production}"
-    depends_on:
-      - build
+      builder:
+        condition: "service_started"
+    volumes:
+      - ./.env.prod:/app/.env
     env_file:
       - ".env"
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
@@ -44,17 +58,19 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${DOCKER_WEB_CPUS:-0}"
-          memory: "${DOCKER_WEB_MEMORY:-0}"
+          cpus: "${DOCKER_RUNTIME_CPUS:-0}"
+          memory: "${DOCKER_RUNTIME_MEMORY:-0}"
     healthcheck:
-      test: "${DOCKER_WEB_HEALTHCHECK_TEST:-curl localhost:8000/health_check}"
+      test: "${DOCKER_RUNTIME_HEALTHCHECK_TEST:-curl localhost:8000/health_check}"
       interval: "60s"
       timeout: "3s"
       start_period: "5s"
       retries: 3
+    profiles: ["runtime"]
     ports:
-      - "${DOCKER_WEB_PORT_FORWARD:-8000}:${PORT:-8000}"
-    profiles: ["app"]
+      - "${DOCKER_RUNTIME_PORT_FORWARD:-8000}:${PORT:-8000}"
+    networks:
+      - back-end
 
 networks:
   back-end:
