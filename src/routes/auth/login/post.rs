@@ -29,6 +29,7 @@ pub async fn login_post(
         Ok(user_id) => {
             tracing::info!("User {} login!", user_id);
             session.renew();
+            tracing::debug!("Insert user_id {} to session", user_id);
             session.insert_user_id(user_id).map_err(e500)?;
             Ok(see_other("/user/info"))
         }

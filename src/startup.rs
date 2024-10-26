@@ -25,11 +25,11 @@ pub struct Application {
 
 impl Application {
     pub async fn build(configuration: Settings) -> Result<Self, anyhow::Error> {
-        tracing::trace!("SETTING UP MYSQL CONNECTION");
+        tracing::debug!("SETTING UP MYSQL CONNECTION");
         let mysql_connection = connection_with_db(&configuration.database);
         let mysql_pool = get_db_pool(mysql_connection);
 
-        tracing::trace!("SETTING UP REDIS SESSION");
+        tracing::debug!("SETTING UP REDIS SESSION");
         let redis_store = RedisSessionStore::new(configuration.redis_uri.expose_secret()).await?;
         let secret_key = Key::from(configuration.application.key.expose_secret().as_bytes());
 
@@ -38,10 +38,10 @@ impl Application {
             configuration.application.host, configuration.application.port
         );
 
-        tracing::trace!("TcpListener bind address: {}", address);
+        tracing::debug!("TcpListener bind address: {}", address);
         let listener = TcpListener::bind(address).context("Failed to bind port")?;
         let port = listener.local_addr().unwrap().port();
-        tracing::trace!("Get local port: {}", port);
+        tracing::debug!("Get local port: {}", port);
 
         let server = run(listener, mysql_pool, redis_store, secret_key).await?;
 
@@ -65,7 +65,7 @@ async fn run(
 ) -> Result<Server, anyhow::Error> {
     let db_pool = web::Data::new(db_pool);
 
-    tracing::trace!("CREATE SERVER");
+    tracing::debug!("CREATE SERVER");
     let server = HttpServer::new(move || {
         App::new()
             .wrap(Logger::new("%{r}a %r %s %{Location}o"))

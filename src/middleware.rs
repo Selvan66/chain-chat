@@ -40,10 +40,12 @@ pub async fn reject_anonymous_users(
 
     match session.get_user_id().map_err(e500)? {
         Some(user_id) => {
+            tracing::debug!("User_id {} | Access granted", user_id);
             req.extensions_mut().insert(UserId(user_id));
             next.call(req).await
         }
         None => {
+            tracing::debug!("Reject anonymouse user");
             let response = see_other("/auth/login");
             let e = anyhow::anyhow!("The user has not logged in");
             Err(InternalError::from_response(e, response).into())
