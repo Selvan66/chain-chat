@@ -15,7 +15,7 @@ env:
   SQLX_VERSION: 0.7.1
   SQLX_FEATURES: "rustls,mysql"
   DATABASE_URL: "mysql://user:password@localhost:3306/mydb"
-  
+
 jobs:
   test:
     name: Test
@@ -46,7 +46,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           key: sqlx-${{ env.SQLX_VERSION }}
-      
+
       - name: Install sqlx-cli
         run:
           cargo install sqlx-cli
@@ -101,7 +101,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           key: sqlx-${{ env.SQLX_VERSION }}
-      
+
       - name: Install sqlx-cli
         run:
           cargo install sqlx-cli
@@ -121,6 +121,47 @@ jobs:
 
       - name: Linting
         run: cargo clippy -- -D warnings
+
+  sqlx-prepare:
+    name: Sqlx-prepare
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.39-bookworm
+        env:
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: mydb
+          MYSQL_ROOT_PASSWORD: password
+        ports:
+          - 3306:3306
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: sqlx-${{ env.SQLX_VERSION }}
+
+      - name: Install sqlx-cli
+        run:
+          cargo install sqlx-cli
+            --version=${{ env.SQLX_VERSION }}
+            --features ${{ env.SQLX_FEATURES }}
+            --no-default-features
+            --locked
+
+      - name: Install python
+        run: sudo apt-get update && sudo apt-get install python3
+
+      - name: Install requirements
+        run: pip3 install -r scripts/requirements.txt
+
+      - name: Migrate database
+        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
+
+      - name: Sqlx prepare
+        run: cargo sqlx prepare --check -- --lib
 
   coverage:
     name: Code coverage
@@ -142,8 +183,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
-      - uses: dtolnay/rust-toolchain@stable 
+
+      - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:
           key: sqlx-${{ env.SQLX_VERSION }}
@@ -163,7 +204,7 @@ jobs:
         run: pip3 install -r scripts/requirements.txt
 
       - name: Migrate database
-        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"    
+        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Generate code coverage
         run: cargo install cargo-tarpaulin && cargo tarpaulin --verbose --workspace

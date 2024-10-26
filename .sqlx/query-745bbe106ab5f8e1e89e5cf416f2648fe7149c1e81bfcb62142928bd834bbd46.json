@@ -1,0 +1,24 @@
+{
+  "db_name": "MySQL",
+  "query": "SELECT TRUE",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "TRUE",
+        "type_info": {
+          "type": "LongLong",
+          "flags": "NOT_NULL | BINARY",
+          "max_size": 1
+        }
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "745bbe106ab5f8e1e89e5cf416f2648fe7149c1e81bfcb62142928bd834bbd46"
+}
