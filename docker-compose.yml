@@ -1,6 +1,9 @@
 x-build: &default-build
   build:
     context: "."
+    args:
+      - "UID=${UID:-1000}"
+      - "GID=${GID:-1000}"
   env_file:
     - ".env"
   restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
@@ -41,6 +44,9 @@ services:
     build:
       context: "."
       target: "runtime"
+      args:
+        - "UID=${UID:-1000}"
+        - "GID=${GID:-1000}"
     depends_on:
       mysql:
         condition: "service_started"
