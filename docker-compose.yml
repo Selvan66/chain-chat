@@ -44,8 +44,10 @@ services:
     depends_on:
       mysql:
         condition: "service_started"
+        required: false
       redis:
         condition: "service_started"
+        required: false
       builder:
         condition: "service_started"
     volumes:
@@ -61,10 +63,10 @@ services:
           cpus: "${DOCKER_RUNTIME_CPUS:-0}"
           memory: "${DOCKER_RUNTIME_MEMORY:-0}"
     healthcheck:
-      test: "${DOCKER_RUNTIME_HEALTHCHECK_TEST:-curl localhost:8000/health_check}"
+      test: ["CMD", "curl", "-f", "localhost:${PORT:-8000}/health_check"]
       interval: "60s"
-      timeout: "3s"
-      start_period: "5s"
+      timeout: "10s"
+      start_period: "15s"
       retries: 3
     profiles: ["runtime"]
     ports:
