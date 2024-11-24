@@ -76,7 +76,7 @@ services:
       retries: 3
     profiles: ["runtime"]
     ports:
-      - "${DOCKER_RUNTIME_PORT_FORWARD:-8000}:${PORT:-8000}"
+      - "${DOCKER_RUNTIME_PORT_FORWARD:-127.0.0.1:8000}:${PORT:-8000}"
     networks:
       - back-end
 

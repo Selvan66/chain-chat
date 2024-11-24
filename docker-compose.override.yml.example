@@ -1,46 +1,61 @@
 
 services:
   mysql:
+    image: "mysql:8.0.39-bookworm"
+    volumes:
+      - "mysql:/var/lib/mysql"
+    env_file:
+      - ".env"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    tty: true
+    environment:
+      MYSQL_USER: "${MYSQL_USER:-user}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-password}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-mydb}"
+      MYSQL_PORT: "${MYSQL_PORT:-3306}"
+      MYSQL_HOST: "${MYSQL_HOST:-localhost}"
     deploy:
       resources:
         limits:
           cpus: "${DOCKER_MYSQL_CPUS:-0}"
           memory: "${DOCKER_MYSQL_MEMORY:-0}"
-    image: "mysql:8.0.39-bookworm"
-    profiles: ["mysql"]
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-    stop_grace_period: "3s"
-    environment:
-      MYSQL_USER: "${MYSQL_USER:-user}"
-      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE:-mydb}"
-      MYSQL_PORT: "${MYSQL_PORT:-3306}"
-      MYSQL_HOST: "${MYSQL_HOST:-localhost}"
-    volumes:
-      - "mysql:/var/lib/mysql/data"
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -u ${MYSQL_USER} -p${MYSQL_PASSWORD}"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 3
+    profiles: ["mysql"]
+    ports:
+      - "${MYSQL_PORT:-3306}:${MYSQL_PORT:-3306}"
+    networks:
+      - back-end
 
   redis:
+    image: "redis:7.4.1-bookworm"
+    volumes:
+      - "redis:/data"
+    env_file:
+      - ".env"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    tty: true
     deploy:
       resources:
         limits:
           cpus: "${DOCKER_REDIS_CPUS:-0}"
           memory: "${DOCKER_REDIS_MEMORY:-0}"
-    image: "redis:7.4.1-bookworm"
-    profiles: ["redis"]
-    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-    stop_grace_period: "3s"
-    volumes:
-      - "redis:/data"
     healthcheck:
-      test: ["CMD", "redis-cli ping"]
+      test: ["CMD-SHELL", "redis-cli ping"]
       interval: 30s
       timeout: 10s
-      retries: 5
+      retries: 3
+    profiles: ["redis"]
+    ports:
+      - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+    networks:
+      - back-end
 
 volumes:
   mysql: {}
