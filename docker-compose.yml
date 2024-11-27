@@ -1,45 +1,7 @@
-x-build: &default-build
-  build:
-    context: "."
-  env_file:
-    - ".env"
-  restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
-  stop_grace_period: "0"
-  tty: true
-  deploy:
-    resources:
-      limits:
-        cpus: "${DOCKER_BUILD_CPUS:-0}"
-        memory: "${DOCKER_BUILD_MEMORY:-0}"
-  networks:
-    - back-end
-
 services:
-  base:
-    <<: *default-build
-    build:
-      target: "base"
-    profiles: ["base"]
-
-  planner:
-    <<: *default-build
-    build:
-      target: "planner"
-    depends_on:
-      - base
-    profiles: ["planner"]
-
-  builder:
-    <<: *default-build
-    build:
-      target: "builder"
-    depends_on:
-      - planner
-    profiles: ["builder"]
-
   runtime:
+    image: ghcr.io/selvan66/chain-chat:prod
     build:
-      context: "."
       target: "runtime"
       args:
         - "UID=${UID:-1000}"
@@ -51,8 +13,6 @@ services:
       redis:
         condition: "service_started"
         required: false
-      builder:
-        condition: "service_started"
     volumes:
       - ./.env.prod:/app/.env
     env_file:
