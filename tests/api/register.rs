@@ -19,7 +19,7 @@ async fn register_get_works() {
     let html = app.get_html("/auth/register").await;
     assert!(html.contains("Username"));
     assert!(html.contains("Password"));
-    assert!(html.contains("Confirm password"));
+    assert!(html.contains("Confirm Password"));
 }
 
 #[tokio::test]
