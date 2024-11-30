@@ -9,5 +9,5 @@ async fn home_works() {
     assert!(response.status().is_success());
 
     let html = app.get_html("/").await;
-    assert!(html.contains("Chain Chat"));
+    assert!(html.contains("Chain chat"));
 }
