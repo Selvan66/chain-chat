@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    <style>
+        {% block style %}
+        body, html {
+            font-family: ui-sans-serif,-apple-system,system-ui,Segoe UI,Helvetica,Apple Color Emoji,Arial,sans-serif,Segoe UI Emoji,Segoe UI Symbol;
+            background-color: #212121;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .flash-message {
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          font-size: 14px;
+          padding: 20px;
+          z-index: 1000;
+          max-width: 300px;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px (0, 0, 0, 0.2);
+          background-color: #f8d7da;
+          color: #721c24;
+          border: 1px soild #f5c6cb;
+          animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .button, button {
+          padding: 10px 10px;
+          margin-left: 10px;
+          background-color: #ddd;
+          color: #000;
+          border: none;
+          border-radius: 20px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background-color 0.3 ease;
+          text-decoration: none;
+        }
+
+        .button:hover {
+          background-color: #fff;
+        }
+    {% endblock style %}
+    </style>
+{% endblock head %}
+</head>
+<body>
+  {% block body %}{% endblock body %}
+</body>
+</html>

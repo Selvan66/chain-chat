@@ -1,83 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChainChat</title>
-    <style>
-        body, html {
-            font-family: ui-sans-serif,-apple-system,system-ui,Segoe UI,Helvetica,Apple Color Emoji,Arial,sans-serif,Segoe UI Emoji,Segoe UI Symbol;
-            background-color: #212121;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
+{% extends "base.html" %}
 
-        .content {
-          font-size: 64px;
-          align-items: center;
-          justify-content: center;
-          display: flex;
-          color: #fff;
-          flex-grow: 1;
-        }
+{% block title %} ChainChat {% endblock title %}
 
-        .flash-message {
-          position: fixed;
-          top: 20px;
-          left: 20px;
-          font-size: 14px;
-          padding: 20px;
-          z-index: 1000;
-          max-width: 300px;
-          border-radius: 5px;
-          box-shadow: 0 2px 5px (0, 0, 0, 0.2);
-          background-color: #f8d7da;
-          color: #721c24;
-          border: 1px soild #f5c6cb;
-          animation: fadeIn 0.5s ease-out;
-        }
+{% block style %}
 
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
+{{ super() }}
 
-        .buttons {
-          position: absolute;
-          text-align: right;
-          top: 20px;
-          right: 10px;
-        }
+.content {
+  font-size: 64px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  color: #fff;
+  flex-grow: 1;
+}
 
-        .button {
-          padding: 10px 10px;
-          margin-left: 10px;
-          background-color: #ddd;
-          color: #000;
-          border: none;
-          border-radius: 20px;
-          cursor: pointer;
-          font-size: 14px;
-          transition: background-color 0.3 ease;
-          text-decoration: none;
-        }
+.buttons {
+  position: absolute;
+  text-align: right;
+  top: 20px;
+  right: 10px;
+}
 
-        .button:hover {
-          background-color: #fff;
-        }
+{% endblock style %}
 
-    </style>
-</head>
-<body>
+{% block body %}
   <div class="buttons">
     {% if is_user is defined %}
     <a class="button" href="/user/info">Account</a>
     {% else %}
     <a class="button" href="/auth/login">Log in</a>
-    <a class="button" href="/auth/register">Create account</a>
+    <a class="button" href="/auth/register">Sign up</a>
     {% endif %}
   </div>
 
@@ -91,5 +44,4 @@
   <div class="content">
      <b>Chain chat</b>
   </div>
-</body>
-</html>
+{% endblock body %}
