@@ -12,6 +12,10 @@ fn render_home_page(req: &HttpRequest) -> Result<String, anyhow::Error> {
         ctx.insert("flash_message", flash_cookie.value());
     }
 
+    if req.cookie("id").is_some() {
+        ctx.insert("is_user", &1);
+    }
+
     tera.render("home.html", &ctx)
         .context("Cannot render home page")
 }
