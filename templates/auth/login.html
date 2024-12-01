@@ -43,9 +43,14 @@ input[type="password"] {
 {% endblock style %}
 
 {% block body %}
+
+  <!-- Flash message box -->
   {% if flash_message is defined %}
-    <i>{{ flash_message }}</i>
+  <div id="flash-message" class="flash-message">
+    {{ flash_message }}
+  </div>
   {% endif %}
+
   <div class="content">
     <div class="login-container">
       <form action="/auth/login" method="post">
