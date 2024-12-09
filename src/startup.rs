@@ -68,7 +68,7 @@ async fn run(
     tracing::debug!("CREATE SERVER");
     let server = HttpServer::new(move || {
         App::new()
-            .wrap(Logger::new("%{r}a %r %s %{Location}o"))
+            .wrap(Logger::new("%{r}a %r %s %{Location}o").exclude("/health_check"))
             .wrap(SessionMiddleware::new(
                 redis_store.clone(),
                 secret_key.clone(),
