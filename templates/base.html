@@ -57,11 +57,26 @@
         .button:hover {
           background-color: #fff;
         }
+
+        .footer {
+          text-align: center;
+          color: #aaa;
+          font-size: 12px;
+          background-color: #1a1a1a;
+          position: absolute;
+          bottom: 0px;
+          left: 0px;
+          right: 0px;
+        }
+
     {% endblock style %}
     </style>
 {% endblock head %}
 </head>
 <body>
   {% block body %}{% endblock body %}
+  <footer class="footer">
+    <p> Private use only</p>
+  </footer>
 </body>
 </html>
