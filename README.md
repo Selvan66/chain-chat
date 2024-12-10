@@ -8,4 +8,4 @@ TODO:
 [ ] change password - endpoint
 [ ] OAuth - github
 [x] Add footnote - Only Private usage
-[ ] Add favicon.ico
+[x] Add favicon.ico

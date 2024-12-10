@@ -1,3 +1,4 @@
+mod favicon;
 mod health_check;
 mod home;
 mod info;
