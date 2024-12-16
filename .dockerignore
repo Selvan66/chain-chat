@@ -10,8 +10,6 @@ target/
 .env.prod
 .gitignore
 .pre-commit-config.yaml
-docker-compose.override.yml
-docker-compose.override.yml.example
 docker-compose.yml
 Dockerfile
 README.md

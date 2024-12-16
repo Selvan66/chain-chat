@@ -1,11 +1,113 @@
+x-db: &default-mysql
+  image: "mysql:8.0.39-bookworm"
+  env_file:
+    - ".env"
+  tty: true
+  environment:
+    MYSQL_USER: "${MYSQL_USER:-user}"
+    MYSQL_PASSWORD: "${MYSQL_PASSWORD:-password}"
+    MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-password}"
+    MYSQL_DATABASE: "${MYSQL_DATABASE:-mydb}"
+    MYSQL_PORT: "${MYSQL_PORT:-3306}"
+    MYSQL_HOST: "${MYSQL_HOST:-localhost}"
+  healthcheck:
+        test: ["CMD-SHELL", "mysqladmin ping -u ${MYSQL_USER} -p${MYSQL_PASSWORD}"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+  ports:
+    - "${MYSQL_PORT:-3306}:${MYSQL_PORT:-3306}"
+
+x-redis: &default-redis
+  image: "redis:7.4.1-bookworm"
+  env_file:
+    - ".env"
+  tty: true
+  healthcheck:
+    test: ["CMD-SHELL", "redis-cli ping"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+  ports:
+    - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
+
+x-run: &default-run
+  image:  ghcr.io/selvan66/chain-chat:prod
+  build:
+    args:
+      - "UID=${UID:-1000}"
+      - "GID=${GID:-1000}"
+  env_file:
+    - ".env"
+  tty: true
+
+
 services:
+  mysql:
+    <<: *default-mysql
+    volumes:
+      - "mysql:/var/lib/mysql"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_MYSQL_CPUS:-0}"
+          memory: "${DOCKER_MYSQL_MEMORY:-0}"
+    profiles: ["mysql"]
+    networks:
+      - run-bridge
+
+  mysql_test:
+    <<: *default-mysql
+    volumes:
+      - "mysql_test:/var/lib/mysql"
+    profiles: ["mysql-test"]
+    networks:
+      test-bridge:
+        aliases:
+          - mysql_test
+
+  redis:
+    <<: *default-redis
+    volumes:
+      - "redis:/data"
+    restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
+    stop_grace_period: "3s"
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_REDIS_CPUS:-0}"
+          memory: "${DOCKER_REDIS_MEMORY:-0}"
+    profiles: ["redis"]
+    networks:
+      - run-bridge
+
+  redis_test:
+    <<: *default-redis
+    volumes:
+      - "redis_test:/data"
+    profiles: ["redis_test"]
+    networks:
+      test-bridge:
+        aliases:
+          - redis_test
+
+  watchtower:
+    image: containrrr/watchtower:1.7.1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.docker/config.json:/config.json
+    command:
+      - "--interval"
+      - "3600"
+      - "--rolling-restart"
+    profiles: ["watchtower"]
+
   runtime:
-    image: ghcr.io/selvan66/chain-chat:prod
+    <<: *default-run
     build:
       target: "runtime"
-      args:
-        - "UID=${UID:-1000}"
-        - "GID=${GID:-1000}"
     depends_on:
       mysql:
         condition: "service_started"
@@ -15,11 +117,8 @@ services:
         required: false
     volumes:
       - ./.env.prod:/app/.env
-    env_file:
-      - ".env"
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
-    tty: true
     deploy:
       resources:
         limits:
@@ -35,7 +134,31 @@ services:
     ports:
       - "${DOCKER_RUNTIME_PORT_FORWARD:-127.0.0.1:8000}:${PORT:-8000}"
     networks:
-      - back-end
+      - run-bridge
+
+  tests:
+    <<: *default-run
+    build:
+      target: "test_runtime"
+    environment:
+      - APP__APPLICATION__HOST=0.0.0.0
+      - APP__DATABASE__HOST=mysql_test
+      - APP__REDIS_URI=redis://redis_test:6379
+    depends_on:
+      mysql_test:
+        condition: service_healthy
+      redis_test:
+        condition: service_healthy
+    profiles: ["test_runtime"]
+    networks:
+      - test-bridge
+
+volumes:
+  mysql: {}
+  mysql_test: {}
+  redis: {}
+  redis_test: {}
 
 networks:
-  back-end:
+  run-bridge:
+  test-bridge:

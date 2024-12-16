@@ -3,7 +3,6 @@
 
 .env
 .env.prod
-docker-compose.override.yml
 
 # Python
 /scripts/venv
