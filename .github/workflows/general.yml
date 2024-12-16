@@ -26,10 +26,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run tests
-        run: docker-compose \
-          -f "docker-compose.yml" up \
-          tests mysql_test redis_tests \
-          --exit-code-from tests
+        uses: hoverkraft-tech/compose-action@v2.0.1
+        with:
+          compose-file: "./docker-compose.yml"
+          services: |
+            mysql_test
+            redis_tests
+            tests
+          up-flag: --exit-code-from tests
 
   fmt:
     name: Rustfmt
@@ -72,8 +76,14 @@ jobs:
             --no-default-features
             --locked
 
+      - name: Install python
+        run: sudo apt-get update && sudo apt-get install python3
+
+      - name: Install requirements
+        run: pip3 install -r scripts/requirements.txt
+
       - name: Migrate database
-        run: sqlx database create && sqlx migrate run
+        run: python3 -c "from scripts.init_db import *; wait_until_mysql_start(); run_sqlx_migration();"
 
       - name: Linting
         run: cargo clippy -- -D warnings
