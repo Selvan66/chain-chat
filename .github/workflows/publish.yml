@@ -3,11 +3,9 @@ name: Publish Docker Image
 
 on:
   workflow_run:
-    workflows: ["Rust"]
-    types:
-     - completed
-    branches:
-     - prod
+    workflows: [Rust]
+    types: [completed]
+    branches: [prod]
 
 jobs:
   push_to_registry:
