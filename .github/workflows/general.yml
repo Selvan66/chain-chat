@@ -30,7 +30,7 @@ jobs:
         with:
           services: |
             mysql_test
-            redis_tests
+            redis_test
             tests
           up-flags: "--exit-code-from tests"
 
