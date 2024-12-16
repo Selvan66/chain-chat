@@ -1,7 +1,6 @@
 /target
 /log
 
-.env
 .env.prod
 
 # Python
