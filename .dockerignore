@@ -1,10 +1,8 @@
 .git/
 .github/
 log/
-migrations/
 scripts/
 target/
-tests/
 
 .dockerignore
 .env

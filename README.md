@@ -9,3 +9,5 @@ TODO:
 [ ] OAuth - github
 [x] Add footnote - Only Private usage
 [x] Add favicon.ico
+[ ] Add to toml optimization flags
+[ ] Test app in docker using github action
