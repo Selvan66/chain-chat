@@ -28,12 +28,12 @@ jobs:
       - name: Run tests
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          compose-file: "./docker-compose.yml"
           services: |
             mysql_test
             redis_tests
             tests
-          up-flags: ["--exit-code-from tests"]
+          up-flags:
+            - "--exit-code-from tests"
 
   fmt:
     name: Rustfmt
