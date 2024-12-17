@@ -80,6 +80,6 @@ COPY --chown=run --from=test_builder /app/target/release/deps/main-* tests.bin
 COPY --chown=run:run migrations migrations
 COPY --chown=run:run configuration configuration
 COPY --chown=run:run templates templates
-COPY --chown=run:run static static
+# COPY --chown=run:run static static
 
 ENTRYPOINT ["./tests.bin"]
