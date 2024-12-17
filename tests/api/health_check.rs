@@ -9,3 +9,9 @@ async fn health_check_works() {
     assert!(response.status().is_success());
     assert_eq!(Some(0), response.content_length());
 }
+
+#[tokio::test]
+async fn test() {
+    assert!(false);
+    assert_eq!(1, 2);
+}
