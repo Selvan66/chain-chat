@@ -6,8 +6,6 @@ on:
     workflows: ["Rust"]
     types:
       - completed
-    branches:
-      - prod
 
 jobs:
   push_to_registry:
