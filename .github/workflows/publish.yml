@@ -4,12 +4,13 @@ name: Publish Docker Image
 on:
   workflow_run:
     workflows: ["Rust"]
-    types:
-      - completed
+    types: [completed]
+    branches: [main]
 
 jobs:
   push_to_registry:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       packages: write
       contents: read
@@ -32,9 +33,10 @@ jobs:
           images: ghcr.io/${{ github.repository }}
 
       - name: Publish Docker Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           context: .
+          target: runtime

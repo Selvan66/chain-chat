@@ -120,6 +120,7 @@ services:
     restart: "${DOCKER_RESTART_POLICY:-unless-stopped}"
     stop_grace_period: "3s"
     deploy:
+      replicas: 3
       resources:
         limits:
           cpus: "${DOCKER_RUNTIME_CPUS:-0}"
@@ -132,7 +133,7 @@ services:
       retries: 3
     profiles: ["runtime"]
     ports:
-      - "${DOCKER_RUNTIME_PORT_FORWARD:-127.0.0.1:8000}:${PORT:-8000}"
+      - "${DOCKER_RUNTIME_PORT_FORWARD:-127.0.0.1:8000-8002}:${PORT:-8000}"
     networks:
       - run-bridge
 
