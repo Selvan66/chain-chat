@@ -32,7 +32,6 @@ x-redis: &default-redis
     - "${REDIS_PORT:-6379}:${REDIS_PORT:-6379}"
 
 x-run: &default-run
-  image:  ghcr.io/selvan66/chain-chat:main
   build:
     args:
       - "UID=${UID:-1000}"
@@ -106,6 +105,7 @@ services:
 
   runtime:
     <<: *default-run
+    image:  ghcr.io/selvan66/chain-chat:main
     build:
       target: "runtime"
     depends_on:
@@ -141,6 +141,7 @@ services:
     <<: *default-run
     build:
       target: "test_runtime"
+      context: .
     environment:
       - APP__APPLICATION__HOST=0.0.0.0
       - APP__DATABASE__HOST=mysql_test
