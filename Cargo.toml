@@ -54,3 +54,13 @@ features = [
 
 [dev-dependencies]
 fake = "2.9.2"
+
+# Release flags
+[profile.release]
+opt-level = 3
+codegen-units = 4
+lto = true
+panic = "abort"
+target-cpu = "native"
+debug = false
+strip = true
