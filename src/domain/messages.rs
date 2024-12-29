@@ -8,3 +8,5 @@ pub static REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM: &str =
 pub static USER_LOGIN: &str = "User already login";
 pub static AUTHENTICATION_FAILED: &str = "Authentication failed";
 pub static LOGOUT_MESSAGE: &str = "You have successfully logged out";
+pub static MESSAGE_404: &str = "Page not found";
+pub static MESSAGE_500: &str = "Come back later";

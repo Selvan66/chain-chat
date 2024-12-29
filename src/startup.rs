@@ -4,7 +4,7 @@ use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::Key;
 use actix_web::dev::Server;
-use actix_web::middleware::{from_fn, Logger};
+use actix_web::middleware::{from_fn, ErrorHandlers, Logger};
 use actix_web::{web, App, HttpServer};
 use anyhow::Context;
 use secrecy::ExposeSecret;
@@ -14,8 +14,8 @@ use crate::configuration::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
 use crate::middleware::{reject_anonymous_users, reject_logged_users};
 use crate::routes::{
-    favicon_get, health_check, home_get, info_get, login_get, login_post, logout_post,
-    register_get, register_post,
+    error_handler, favicon_get, health_check, home_get, info_get, login_get, login_post,
+    logout_post, register_get, register_post,
 };
 
 pub struct Application {
@@ -73,6 +73,7 @@ async fn run(
                 redis_store.clone(),
                 secret_key.clone(),
             ))
+            .wrap(ErrorHandlers::new().default_handler(error_handler))
             .service(favicon_get)
             .service(home_get)
             .service(health_check)

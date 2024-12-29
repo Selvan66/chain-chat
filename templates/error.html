@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block style %}
+
+{{ super() }}
+
+.content {
+  font-size: 64px;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  color: #fff;
+  flex-grow: 1;
+}
+
+{% endblock style %}
+
+{% block body %}
+   <!-- Flash message box -->
+  {% if flash_message is defined %}
+  <div id="flash-message" class="flash-message">
+    {{ flash_message }}
+  </div>
+  {% endif %}
+
+  <div class="content">
+    {% if error_404_message is defined %}
+    <b>{{ error_404_message }}</b>
+    {% elif error_500_message is defined %}
+    <b>{{ error_500_message }}</b>
+    {% else %}
+    <b>ERROR</b>
+    {% endif %}
+  </div>
+{% endblock body %}
