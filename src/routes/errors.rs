@@ -1,7 +1,6 @@
 use actix_web::dev::ServiceResponse;
 use actix_web::middleware::ErrorHandlerResponse;
-use actix_web::HttpRequest;
-use actix_web::HttpResponseBuilder;
+use actix_web::{HttpRequest, HttpResponseBuilder, Result};
 use anyhow::Context;
 use tera::Tera;
 
@@ -26,9 +25,7 @@ fn render_error_page(req: &HttpRequest, status: u16) -> Result<String, anyhow::E
         .context("Cannot render home page")
 }
 
-pub fn error_handler<T>(
-    res: ServiceResponse<T>,
-) -> actix_web::Result<actix_web::middleware::ErrorHandlerResponse<T>> {
+pub fn error_handler<T>(res: ServiceResponse<T>) -> Result<ErrorHandlerResponse<T>> {
     let status = res.status();
     let req = res.into_parts().0;
     let new_response = HttpResponseBuilder::new(status)
