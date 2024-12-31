@@ -7,6 +7,7 @@ use actix_web::dev::Server;
 use actix_web::middleware::{from_fn, ErrorHandlers, Logger};
 use actix_web::{web, App, HttpServer};
 use anyhow::Context;
+use deadpool_redis::Pool;
 use secrecy::ExposeSecret;
 use sqlx::MySqlPool;
 
@@ -29,8 +30,14 @@ impl Application {
         let mysql_connection = connection_with_db(&configuration.database);
         let mysql_pool = get_db_pool(mysql_connection);
 
+        tracing::debug!("SETTING UP REDIS POOL");
+        let cfg = deadpool_redis::Config::from_url(configuration.redis_uri.expose_secret());
+        let redis_pool = cfg
+            .create_pool(Some(deadpool_redis::Runtime::Tokio1))
+            .context("Cannot create deadpool redis")?;
+
         tracing::debug!("SETTING UP REDIS SESSION");
-        let redis_store = RedisSessionStore::new(configuration.redis_uri.expose_secret()).await?;
+        let redis_store = RedisSessionStore::new_pooled(redis_pool.clone()).await?;
         let secret_key = Key::from(configuration.application.key.expose_secret().as_bytes());
 
         let address = format!(
@@ -43,7 +50,7 @@ impl Application {
         let port = listener.local_addr().unwrap().port();
         tracing::debug!("Get local port: {}", port);
 
-        let server = run(listener, mysql_pool, redis_store, secret_key).await?;
+        let server = run(listener, mysql_pool, redis_pool, redis_store, secret_key).await?;
 
         Ok(Self { port, server })
     }
@@ -60,10 +67,12 @@ impl Application {
 async fn run(
     listener: TcpListener,
     db_pool: MySqlPool,
+    redis_pool: Pool,
     redis_store: RedisSessionStore,
     secret_key: Key,
 ) -> Result<Server, anyhow::Error> {
     let db_pool = web::Data::new(db_pool);
+    let redis_pool = web::Data::new(redis_pool);
 
     tracing::debug!("CREATE SERVER");
     let server = HttpServer::new(move || {
@@ -92,6 +101,7 @@ async fn run(
                     .service(logout_post),
             )
             .app_data(db_pool.clone())
+            .app_data(redis_pool.clone())
     })
     .listen(listener)?
     .run();

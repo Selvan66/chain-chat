@@ -18,7 +18,8 @@ tera = "1.20.0"
 
 actix-web = "4.9.0"
 actix-files = "0.6.6"
-actix-session = { version = "0.10.1", features = ["redis-session-rustls"] }
+actix-session = { version = "0.10.1", features = ["redis-session-rustls", "redis-pool"] }
+deadpool-redis = "0.16.0"
 # Configuration
 config = "0.14.0"
 dotenv = "0.15.0"
