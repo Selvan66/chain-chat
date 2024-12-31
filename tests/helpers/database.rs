@@ -27,3 +27,9 @@ pub async fn configure_database(
 
     db_pool
 }
+
+pub async fn drop_table(pool: &MySqlPool, name: &str) -> Result<(), anyhow::Error> {
+    let query = format!("DROP TABLE {}", name);
+    sqlx::query(&query).execute(pool).await?;
+    Ok(())
+}

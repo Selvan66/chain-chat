@@ -1,6 +1,7 @@
 use chain_chat::domain::messages::{MESSAGE_404, MESSAGE_500};
 
 use crate::helpers::app::spawn_app;
+use crate::helpers::database::drop_table;
 use crate::helpers::user::TestUser;
 
 #[tokio::test]
@@ -26,7 +27,7 @@ async fn error_404_works() {
 #[tokio::test]
 async fn error_500_works() {
     let app = spawn_app().await;
-    app.db_pool.close().await;
+    drop_table(&app.db_pool, "users").await.unwrap();
 
     let user = TestUser::generate();
     let response = user.register(&app).await;
