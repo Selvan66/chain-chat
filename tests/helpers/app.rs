@@ -1,11 +1,11 @@
 use sqlx::mysql::MySqlPool;
 use tracing_appender::non_blocking::WorkerGuard;
+use uuid::Uuid;
 
 use chain_chat::configuration::get_configuration;
 use chain_chat::database::init::connection_without_db;
 use chain_chat::startup::Application;
 use chain_chat::telemetry::{init_tracing_logger, LogConfig};
-use uuid::Uuid;
 
 use crate::helpers::database::configure_database;
 
@@ -20,7 +20,7 @@ pub struct TestApp {
 impl TestApp {
     pub async fn get_response(&self, path: &str) -> reqwest::Response {
         self.api_client
-            .get(&format!("{}{}", self.address, path))
+            .get(format!("{}{}", self.address, path))
             .send()
             .await
             .expect("Failed to GET")
@@ -35,7 +35,7 @@ impl TestApp {
         Body: serde::Serialize,
     {
         self.api_client
-            .post(&format!("{}{}", self.address, path))
+            .post(format!("{}{}", self.address, path))
             .form(body)
             .send()
             .await
@@ -44,7 +44,7 @@ impl TestApp {
 
     pub async fn post(&self, path: &str) -> reqwest::Response {
         self.api_client
-            .post(&format!("{}{}", self.address, path))
+            .post(format!("{}{}", self.address, path))
             .send()
             .await
             .expect("Failed to POST")
@@ -64,7 +64,7 @@ pub async fn spawn_app() -> TestApp {
         .await
         .expect("Failed to build application");
     let application_port = application.port();
-    let _ = tokio::spawn(application.run_until_stopped());
+    let _app = tokio::spawn(application.run_until_stopped());
 
     let client = reqwest::Client::builder()
         .redirect(reqwest::redirect::Policy::none())
