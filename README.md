@@ -16,10 +16,10 @@ TODO:
 * [x] Test app in docker using github action
     * [x] Publish only if end successful
     * [x] Publish target runtime not tests
-* [ ] Redis use pool as a session and as a web::Data (deadpool-redis)
+* [x] Redis use pool as a session and as a web::Data (deadpool-redis)
     * [ ] Change timeout of deadpool-redis
-    * [ ] Add Redis to health_check
+    * [x] Add Redis to health_check
 * [ ] Redis error handling
 * [ ] Change 'expect' to e500().context() for endpoints
-* [ ] Add to health_check html page (rendered using string)
+* [x] Add to health_check html page (rendered using string)
 * [ ] Change error handling to enum error

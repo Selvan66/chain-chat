@@ -1,3 +1,4 @@
+use actix_web::http::header::ContentType;
 use actix_web::{web, HttpResponse};
 use deadpool_redis::redis::cmd;
 use deadpool_redis::Pool;
@@ -19,7 +20,9 @@ pub async fn health_check(
         return HttpResponse::InternalServerError().finish();
     }
 
-    HttpResponse::Ok().finish()
+    HttpResponse::Ok()
+        .content_type(ContentType::html())
+        .body("Yep its healthy")
 }
 
 async fn redis_health_check(redis_pool: &web::Data<Pool>) -> Result<(), anyhow::Error> {
