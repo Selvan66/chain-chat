@@ -1,4 +1,5 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{http::header::ContentType, web, HttpRequest, HttpResponse};
+use anyhow::Context;
 use secrecy::Secret;
 use sqlx::MySqlPool;
 
@@ -6,8 +7,28 @@ use crate::{
     cryptografic::validate_login,
     domain::messages::AUTHENTICATION_FAILED,
     session::UserSession,
-    utils::{e500, see_other, see_other_with_flash},
+    utils::{delete_flash_cookie, e500, see_other, see_other_with_flash},
 };
+
+fn render_login_page(req: &HttpRequest) -> Result<String, anyhow::Error> {
+    let tera = tera::Tera::new("templates/**/*").context("Creating tera tamplate failed")?;
+    let mut ctx = tera::Context::new();
+
+    if let Some(flash_cookie) = req.cookie("_flash") {
+        ctx.insert("flash_message", flash_cookie.value());
+    }
+
+    tera.render("auth/login.html", &ctx)
+        .context("Cannot render login page")
+}
+
+#[actix_web::get("/login")]
+pub async fn login_get(req: HttpRequest) -> Result<HttpResponse, actix_web::Error> {
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::html())
+        .cookie(delete_flash_cookie())
+        .body(render_login_page(&req).map_err(e500)?))
+}
 
 #[derive(serde::Deserialize, Debug)]
 struct FormData {

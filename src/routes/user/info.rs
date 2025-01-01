@@ -33,5 +33,5 @@ pub async fn info_get(
     Ok(HttpResponse::Ok()
         .content_type(ContentType::html())
         .cookie(delete_flash_cookie())
-        .body(render_info_page(&req, &username).expect("Cannot render login page")))
+        .body(render_info_page(&req, &username).map_err(e500)?))
 }

@@ -20,6 +20,6 @@ TODO:
     * [ ] Change timeout of deadpool-redis
     * [x] Add Redis to health_check
 * [ ] Redis error handling
-* [ ] Change 'expect' to e500().context() for endpoints
+* [x] Change 'expect' to e500().context() for endpoints
 * [x] Add to health_check html page (rendered using string)
 * [ ] Change error handling to enum error
