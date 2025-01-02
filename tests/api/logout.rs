@@ -28,6 +28,10 @@ async fn logout_post_works() {
     assert_flash_message(&app, "/", LOGOUT_MESSAGE).await;
 
     // Can go to /auth/login
-    let html = app.get_html("/auth/login").await;
-    assert!(html.contains("Username"));
+    let response = app.get_response("/auth/login").await;
+    assert_eq!(response.status().as_u16(), 200);
+
+    // Cannot logout if not login
+    let response = app.post("/user/logout").await;
+    assert_is_redirect_to(&response, "/auth/login");
 }

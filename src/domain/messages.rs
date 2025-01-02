@@ -10,3 +10,4 @@ pub static AUTHENTICATION_FAILED: &str = "Authentication failed";
 pub static LOGOUT_MESSAGE: &str = "You have successfully logged out";
 pub static MESSAGE_404: &str = "Page not found";
 pub static MESSAGE_500: &str = "Come back later";
+pub static CHANGE_PASSWORD_SUCCESSFUL: &str = "Change password successful";
