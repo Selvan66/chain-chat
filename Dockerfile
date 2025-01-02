@@ -2,6 +2,8 @@ FROM rust:1.81.0 AS base
 
 WORKDIR /app
 
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends lld clang
 RUN cargo install sccache --version ^0.7
 RUN cargo install cargo-chef --version ^0.1
 ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
@@ -13,6 +15,7 @@ ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
 # Prepare lock-like file
 FROM base AS prepare
 
+COPY ./.cargo ./.cargo
 COPY ./Cargo.lock ./Cargo.toml ./
 COPY ./src ./src
 
@@ -25,7 +28,7 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
     cargo chef cook --release --recipe-path recipe.json
 
-FROM  debian:bookworm-slim AS prepare_run
+FROM debian:bookworm-slim AS prepare_run
 
 WORKDIR /app
 

@@ -10,7 +10,7 @@ TODO:
 * [ ] OAuth - github
 * [x] Add footnote - Only Private usage
 * [x] Add favicon.ico
-* [ ] Add to toml optimization flags
+* [x] Add to toml optimization flags
 * [ ] Fix tracing with actix-web (json format + delete logging to file)
     * [ ] Add 'save to file' to docker compose
 * [x] Test app in docker using github action
