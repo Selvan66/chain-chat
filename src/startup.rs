@@ -13,10 +13,10 @@ use sqlx::MySqlPool;
 
 use crate::configuration::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
-use crate::middleware::{reject_anonymous_users, reject_logged_users};
+use crate::middleware::{error_handler, reject_anonymous_users, reject_logged_users};
 use crate::routes::{
-    error_handler, favicon_get, health_check, home_get, info_get, login_get, login_post,
-    logout_post, register_get, register_post,
+    favicon_get, health_check, home_get, info_get, login_get, login_post, logout_post,
+    register_get, register_post,
 };
 
 pub struct Application {
