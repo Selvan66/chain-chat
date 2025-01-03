@@ -8,6 +8,7 @@ TODO:
     * [x] 404 | 500 endpoints tests
 * [ ] change password - endpoint
 * [ ] OAuth - github
+    * [ ] Migration user (if from OAuth - disable change password)
 * [x] Add footnote - Only Private usage
 * [x] Add favicon.ico
 * [x] Add to toml optimization flags
@@ -23,3 +24,4 @@ TODO:
 * [x] Change 'expect' to e500().context() for endpoints
 * [x] Add to health_check html page (rendered using string)
 * [ ] Change error handling to enum error
+* [ ] Use mail api (sendgrid) to register
