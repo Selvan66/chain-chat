@@ -45,7 +45,7 @@ pub async fn register_post(
     pool: web::Data<MySqlPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     if form.username.len() < 4 {
-        tracing::error!(REGISTRATION_FAILED_USERNAME_TOO_SHORT);
+        tracing::warn!(REGISTRATION_FAILED_USERNAME_TOO_SHORT);
         return Ok(see_other_with_flash(
             "/auth/register",
             REGISTRATION_FAILED_USERNAME_TOO_SHORT,
@@ -53,7 +53,7 @@ pub async fn register_post(
     }
 
     if form.username.len() > 250 {
-        tracing::error!(REGISTRATION_FAILED_USERNAME_TOO_LONG);
+        tracing::warn!(REGISTRATION_FAILED_USERNAME_TOO_LONG);
         return Ok(see_other_with_flash(
             "/auth/register",
             REGISTRATION_FAILED_USERNAME_TOO_LONG,
@@ -61,7 +61,7 @@ pub async fn register_post(
     }
 
     if form.password.expose_secret() != form.confirm_password.expose_secret() {
-        tracing::error!(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM);
+        tracing::warn!(REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM);
         return Ok(see_other_with_flash(
             "/auth/register",
             REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM,
@@ -69,7 +69,7 @@ pub async fn register_post(
     }
 
     if form.password.expose_secret().len() < 4 {
-        tracing::error!(REGISTRATION_FAILED_PASSWORD_TOO_SHORT);
+        tracing::warn!(REGISTRATION_FAILED_PASSWORD_TOO_SHORT);
         return Ok(see_other_with_flash(
             "/auth/register",
             REGISTRATION_FAILED_PASSWORD_TOO_SHORT,
@@ -80,7 +80,7 @@ pub async fn register_post(
         .await
         .map_err(e500)?
     {
-        tracing::error!(REGISTRATION_FAILED_USERNAME_USED);
+        tracing::warn!(REGISTRATION_FAILED_USERNAME_USED);
         return Ok(see_other_with_flash(
             "/auth/register",
             REGISTRATION_FAILED_USERNAME_USED,
