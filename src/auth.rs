@@ -22,7 +22,7 @@ pub fn compute_password_hash(password: Secret<String>) -> Result<Secret<String>,
     Ok(Secret::new(password_hash))
 }
 
-pub async fn validate_login(
+pub async fn validate_credentials(
     username: String,
     password: Secret<String>,
     pool: &MySqlPool,

@@ -5,7 +5,7 @@ use sqlx::MySqlPool;
 use tera::Tera;
 
 use crate::{
-    cryptografic::compute_password_hash,
+    auth::compute_password_hash,
     database::users::{add_user, check_if_username_exist},
     domain::{messages::*, User},
     utils::{delete_flash_cookie, e500, see_other_with_flash},

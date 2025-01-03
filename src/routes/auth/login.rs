@@ -4,7 +4,7 @@ use secrecy::Secret;
 use sqlx::MySqlPool;
 
 use crate::{
-    cryptografic::validate_login,
+    auth::validate_credentials,
     domain::messages::AUTHENTICATION_FAILED,
     session::UserSession,
     utils::{delete_flash_cookie, e500, see_other, see_other_with_flash},
@@ -46,7 +46,7 @@ pub async fn login_post(
     pool: web::Data<MySqlPool>,
     session: UserSession,
 ) -> Result<HttpResponse, actix_web::Error> {
-    match validate_login(form.0.username, form.0.password, &pool).await {
+    match validate_credentials(form.0.username, form.0.password, &pool).await {
         Ok(user_id) => {
             tracing::info!("User {} login!", user_id);
             session.renew();
