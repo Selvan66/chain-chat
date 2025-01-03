@@ -6,7 +6,7 @@ use argon2::{
 use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
 
-use crate::database::users::get_user_id_and_password;
+use crate::database::users::{change_user_password, get_user_id_and_password};
 
 pub fn compute_password_hash(password: Secret<String>) -> Result<Secret<String>, anyhow::Error> {
     let salt = SaltString::generate(&mut rand::thread_rng());
@@ -42,6 +42,22 @@ pub async fn validate_credentials(
         .context("Failed to spawn blocking task.")??;
 
     user_id.ok_or_else(|| anyhow::anyhow!("Unknown username."))
+}
+
+pub async fn change_password(
+    user_id: String,
+    password: Secret<String>,
+    pool: &MySqlPool,
+) -> Result<(), anyhow::Error> {
+    let password_hash = tokio::task::spawn_blocking(move || compute_password_hash(password))
+        .await?
+        .context("Failed to hash password")?;
+
+    change_user_password(pool, &user_id, password_hash)
+        .await
+        .context("Failed to change password")?;
+
+    Ok(())
 }
 
 fn verify_password_hash(

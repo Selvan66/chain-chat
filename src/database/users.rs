@@ -9,7 +9,7 @@ pub async fn check_if_username_exist(
     username: &str,
 ) -> Result<bool, anyhow::Error> {
     match sqlx::query!(
-        r#" 
+        r#"
         SELECT user_id
         FROM users
         WHERE username = ?
@@ -74,4 +74,25 @@ pub async fn get_username(pool: &MySqlPool, user_id: &str) -> Result<String, any
     .await
     .context("Failed to perform a query to retrieve a username.")?;
     Ok(row.username)
+}
+
+pub async fn change_user_password(
+    pool: &MySqlPool,
+    user_id: &str,
+    password: Secret<String>,
+) -> Result<(), anyhow::Error> {
+    sqlx::query!(
+        r#"
+    UPDATE users
+    SET password_hash = ?
+    WHERE user_id = ?
+    "#,
+        password.expose_secret(),
+        user_id
+    )
+    .execute(pool)
+    .await
+    .context("Failed to change user's password in the database")?;
+
+    Ok(())
 }

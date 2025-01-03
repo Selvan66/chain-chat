@@ -15,8 +15,8 @@ use crate::configuration::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
 use crate::middleware::{error_handler, reject_anonymous_users, reject_logged_users};
 use crate::routes::{
-    favicon_get, health_check, home_get, info_get, login_get, login_post, logout_post,
-    password_get, register_get, register_post,
+    change_password_get, change_password_post, favicon_get, health_check, home_get, info_get,
+    login_get, login_post, logout_post, register_get, register_post,
 };
 
 pub struct Application {
@@ -99,7 +99,8 @@ async fn run(
                     .wrap(from_fn(reject_anonymous_users))
                     .service(info_get)
                     .service(logout_post)
-                    .service(password_get),
+                    .service(change_password_get)
+                    .service(change_password_post),
             )
             .app_data(db_pool.clone())
             .app_data(redis_pool.clone())
