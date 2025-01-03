@@ -22,7 +22,7 @@ async fn password_get_works() {
     assert_eq!(response.status().as_u16(), 200);
 
     let html = app.get_html("/user/password").await;
-    assert!(html.contains("Old Password"));
+    assert!(html.contains("Current Password"));
 }
 
 #[tokio::test]
