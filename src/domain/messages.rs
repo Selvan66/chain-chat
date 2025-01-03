@@ -11,3 +11,9 @@ pub static LOGOUT_MESSAGE: &str = "You have successfully logged out";
 pub static MESSAGE_404: &str = "Page not found";
 pub static MESSAGE_500: &str = "Come back later";
 pub static CHANGE_PASSWORD_SUCCESSFUL: &str = "Change password successful";
+pub static PASSWORD_CHANGE_FAILED_NOT_EQ_CONFIRM: &str =
+    "Cannot change password - new passwords are not the same";
+pub static PASSWORD_CHANGE_FAILED_PASSWORD_TOO_SHORT: &str =
+    "Cannot change password - password too short";
+pub static PASSWORD_CHANGE_FAILED_CURRENT_PASSWORD_WRONG: &str =
+    "Cannot change password - current password wrong";
