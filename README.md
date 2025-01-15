@@ -6,7 +6,7 @@ TODO:
 
 * [x] 404 | 500 - endpoint
     * [x] 404 | 500 endpoints tests
-* [ ] change password - endpoint
+* [x] change password - endpoint
 * [ ] OAuth - github
     * [ ] Migration user (if from OAuth - disable change password)
 * [x] Add footnote - Only Private usage
