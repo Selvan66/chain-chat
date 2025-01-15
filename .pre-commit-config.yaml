@@ -4,9 +4,9 @@ repos:
     rev: v3.1.0
     hooks:
       - id: end-of-file-fixer
-        stages: [commit]
+        stages: [pre-commit]
       - id: trailing-whitespace
-        stages: [commit]
+        stages: [pre-commit]
   - repo: local
     hooks:
       - id: fmt
@@ -16,8 +16,9 @@ repos:
         language: system
         types: [rust]
         args: ["--check", "--"]
-        stages: [commit]
+        stages: [pre-commit]
         verbose: true
+
       - id: clippy
         name: Cargo clippy
         description: Run the Clippy linter
@@ -25,15 +26,28 @@ repos:
         language: system
         types: [rust]
         args: ["--", "-D", "warnings"]
-        stages: [commit]
+        stages: [pre-commit]
         pass_filenames: false
         verbose: true
+
+      # cargo sqlx prepare -- --lib
+      - id: sqlx
+        name: Sqlx Prepare
+        description: Run the sqlx prepare
+        types: [rust]
+        language: system
+        entry: cargo sqlx
+        args: ["prepare", "--check", "--", "--lib"]
+        stages: [pre-commit]
+        pass_filenames: false
+        verbose: true
+
       - id: test
         name: Cargo test
         description: Run cargo test
         entry: cargo test
         language: system
         types: [rust]
-        stages: [push]
+        stages: [pre-push]
         pass_filenames: false
         verbose: true
