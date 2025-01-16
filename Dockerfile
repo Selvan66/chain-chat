@@ -6,14 +6,9 @@ RUN cargo install sccache --version ^0.7
 RUN cargo install cargo-chef --version ^0.1
 ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
 
-# DEBUG
-# RUN apt-get update && apt-get install -y g++ valgrind vim mariadb-server
-# RUN cargo install cargo-valgrind
-
 # Prepare lock-like file
 FROM base AS prepare
 
-COPY ./.cargo ./.cargo
 COPY ./Cargo.lock ./Cargo.toml ./
 COPY ./src ./src
 
