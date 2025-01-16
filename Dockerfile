@@ -2,8 +2,6 @@ FROM rust:1.81.0 AS base
 
 WORKDIR /app
 
-RUN apt-get update -y \
-    && apt-get install -y --no-install-recommends lld clang
 RUN cargo install sccache --version ^0.7
 RUN cargo install cargo-chef --version ^0.1
 ENV RUSTC_WRAPPER=sccache SCCACHE_DIR=/sccache
