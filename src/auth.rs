@@ -8,7 +8,6 @@ use sqlx::MySqlPool;
 
 use crate::{
     database::users::{change_user_password, get_user_id_and_password},
-    domain::messages::*,
     error::ValidationError,
 };
 
@@ -45,7 +44,9 @@ pub async fn validate_credentials(
         .await
         .context("Failed to spawn blocking task.")??;
 
-    user_id.ok_or_else(|| ValidationError::ValidationError(AUTHENTICATION_FAILED.to_string()))
+    user_id
+        .ok_or_else(|| anyhow::anyhow!("Unkown user"))
+        .map_err(ValidationError::ValidationError)
 }
 
 pub async fn change_password(
@@ -67,7 +68,7 @@ pub async fn change_password(
 fn verify_password_hash(
     expected_password_hash: Secret<String>,
     password_candidate: Secret<String>,
-) -> Result<(), anyhow::Error> {
+) -> Result<(), ValidationError> {
     let expected_password_hash = PasswordHash::new(expected_password_hash.expose_secret())
         .context("Failed to parse hash in PHC string format.")?;
 
@@ -76,5 +77,6 @@ fn verify_password_hash(
             password_candidate.expose_secret().as_bytes(),
             &expected_password_hash,
         )
-        .context("Invalid password.")
+        .context("Invalid password")
+        .map_err(ValidationError::ValidationError)
 }

@@ -89,7 +89,7 @@ async fn error_500_if_login_while_database_down() {
 
     let user = TestUser::generate();
     let response = user.register(&app).await;
-    assert_eq!(response.status().as_u16(), 200);
+    assert_is_redirect_to(&response, "/");
 
     drop_table(&app.db_pool, "users").await.unwrap();
 

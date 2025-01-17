@@ -3,7 +3,7 @@ use actix_web::{error::ResponseError, http::StatusCode};
 #[derive(thiserror::Error)]
 pub enum ValidationError {
     #[error("{0}")]
-    ValidationError(String),
+    ValidationError(#[source] anyhow::Error),
     #[error(transparent)]
     UnexpectedError(#[from] anyhow::Error),
 }

@@ -58,9 +58,15 @@ pub async fn login_post(
                 .map_err(|e| ValidationError::UnexpectedError(e.into()))?;
             Ok(see_other("/user/info"))
         }
-        Err(e) => {
-            tracing::error!("Error while login: {}", e.to_string());
-            Ok(see_other_with_flash("/auth/login", AUTHENTICATION_FAILED))
-        }
+        Err(e) => match e {
+            ValidationError::ValidationError(e) => {
+                tracing::info!("{}", e);
+                Ok(see_other_with_flash("/auth/login", AUTHENTICATION_FAILED))
+            }
+            ValidationError::UnexpectedError(e) => {
+                tracing::error!("Authentication error: {}", e);
+                Err(ValidationError::UnexpectedError(e))
+            }
+        },
     }
 }
