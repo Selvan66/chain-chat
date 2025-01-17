@@ -4,17 +4,14 @@ use sqlx::MySqlPool;
 
 use crate::domain::User;
 
-pub async fn check_if_username_exist(
-    pool: &MySqlPool,
-    username: &str,
-) -> Result<bool, anyhow::Error> {
+pub async fn check_if_email_exist(pool: &MySqlPool, email: &str) -> Result<bool, anyhow::Error> {
     match sqlx::query!(
         r#"
         SELECT user_id
         FROM users
-        WHERE username = ?
+        WHERE email = ?
     "#,
-        username
+        email
     )
     .fetch_optional(pool)
     .await
@@ -28,11 +25,11 @@ pub async fn check_if_username_exist(
 pub async fn add_user(pool: &MySqlPool, user: User) -> Result<(), anyhow::Error> {
     sqlx::query!(
         r#"
-    INSERT INTO users (user_id, username, password_hash)
+    INSERT INTO users (user_id, email, password_hash)
     VALUES (?, ?, ?)
     "#,
         user.user_id.to_string(),
-        user.username,
+        user.email,
         user.password_hash.expose_secret()
     )
     .execute(pool)
@@ -44,15 +41,15 @@ pub async fn add_user(pool: &MySqlPool, user: User) -> Result<(), anyhow::Error>
 
 pub async fn get_user_id_and_password(
     pool: &MySqlPool,
-    username: &str,
+    email: &str,
 ) -> Result<Option<(String, Secret<String>)>, anyhow::Error> {
     let row: Option<_> = sqlx::query!(
         r#"
     SELECT user_id, password_hash
     FROM users
-    WHERE username = ?
+    WHERE email = ?
     "#,
-        username
+        email
     )
     .fetch_optional(pool)
     .await
@@ -61,10 +58,10 @@ pub async fn get_user_id_and_password(
     Ok(row)
 }
 
-pub async fn get_username(pool: &MySqlPool, user_id: &str) -> Result<String, anyhow::Error> {
+pub async fn get_email(pool: &MySqlPool, user_id: &str) -> Result<String, anyhow::Error> {
     let row = sqlx::query!(
         r#"
-    SELECT username
+    SELECT email
     FROM users
     WHERE user_id = ?
     "#,
@@ -73,7 +70,7 @@ pub async fn get_username(pool: &MySqlPool, user_id: &str) -> Result<String, any
     .fetch_one(pool)
     .await
     .context("Failed to perform a query to retrieve a username.")?;
-    Ok(row.username)
+    Ok(row.email)
 }
 
 pub async fn change_user_password(

@@ -2,9 +2,7 @@ use actix_web::{http::header::ContentType, web, HttpRequest, HttpResponse};
 use anyhow::Context;
 use sqlx::MySqlPool;
 
-use crate::{
-    database::users::get_username, error::e500, session::UserId, utils::delete_flash_cookie,
-};
+use crate::{database::users::get_email, error::e500, session::UserId, utils::delete_flash_cookie};
 
 fn render_info_page(req: &HttpRequest, username: &str) -> Result<String, anyhow::Error> {
     let tera = tera::Tera::new("templates/**/*").context("Creating tera tamplate failed")?;
@@ -26,10 +24,10 @@ pub async fn info_get(
     user_id: web::ReqData<UserId>,
     pool: web::Data<MySqlPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let username = get_username(&pool, &user_id).await.map_err(e500)?;
+    let email = get_email(&pool, &user_id).await.map_err(e500)?;
 
     Ok(HttpResponse::Ok()
         .content_type(ContentType::html())
         .cookie(delete_flash_cookie())
-        .body(render_info_page(&req, &username).map_err(e500)?))
+        .body(render_info_page(&req, &email).map_err(e500)?))
 }

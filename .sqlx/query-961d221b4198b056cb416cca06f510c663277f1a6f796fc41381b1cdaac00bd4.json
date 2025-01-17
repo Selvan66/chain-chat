@@ -1,6 +1,6 @@
 {
   "db_name": "MySQL",
-  "query": "\n        SELECT user_id\n        FROM users\n        WHERE username = ?\n    ",
+  "query": "\n        SELECT user_id\n        FROM users\n        WHERE email = ?\n    ",
   "describe": {
     "columns": [
       {
@@ -20,5 +20,5 @@
       false
     ]
   },
-  "hash": "fc1f733cb88f21e3023533b057f7bcc4ecfe1c71fdd3052543c343e8d4e71124"
+  "hash": "961d221b4198b056cb416cca06f510c663277f1a6f796fc41381b1cdaac00bd4"
 }

@@ -7,7 +7,8 @@ use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
 
 use crate::{
-    database::users::{change_user_password, get_user_id_and_password},
+    database::users::{change_user_password, check_if_email_exist, get_user_id_and_password},
+    domain::messages::*,
     error::ValidationError,
 };
 
@@ -61,6 +62,49 @@ pub async fn change_password(
     change_user_password(pool, &user_id, password_hash)
         .await
         .context("Failed to change password")?;
+
+    Ok(())
+}
+
+pub async fn validate_register(
+    email: &str,
+    password: &Secret<String>,
+    confirm_password: &Secret<String>,
+    pool: &MySqlPool,
+) -> Result<(), ValidationError> {
+    if email.len() > 250 {
+        return Err(ValidationError::ValidationError(anyhow::anyhow!(
+            FAILED_EMAIL_TOO_LONG
+        )));
+    }
+
+    if check_if_email_exist(pool, email)
+        .await
+        .map_err(ValidationError::UnexpectedError)?
+    {
+        return Err(ValidationError::ValidationError(anyhow::anyhow!(
+            FAILED_EMAIL_USED
+        )));
+    }
+
+    validate_password_and_confirm(password, confirm_password)
+}
+
+pub fn validate_password_and_confirm(
+    password: &Secret<String>,
+    confirm_password: &Secret<String>,
+) -> Result<(), ValidationError> {
+    if password.expose_secret() != confirm_password.expose_secret() {
+        return Err(ValidationError::ValidationError(anyhow::anyhow!(
+            FAILED_PASSWORD_NOT_EQ_CONFIRM
+        )));
+    }
+
+    if password.expose_secret().len() < 4 {
+        return Err(ValidationError::ValidationError(anyhow::anyhow!(
+            FAILED_PASSWORD_TOO_SHORT
+        )));
+    }
 
     Ok(())
 }

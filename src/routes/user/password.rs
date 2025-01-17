@@ -1,14 +1,14 @@
 use actix_web::{http::header::ContentType, web, HttpRequest, HttpResponse};
 use anyhow::Context;
-use secrecy::{ExposeSecret, Secret};
+use secrecy::Secret;
 use sqlx::MySqlPool;
 use tera::Tera;
 
 use crate::{
-    auth::{change_password, validate_credentials},
-    database::users::get_username,
+    auth::{change_password, validate_credentials, validate_password_and_confirm},
+    database::users::get_email,
     domain::messages::*,
-    error::e500,
+    error::{e500, ValidationError},
     session::UserId,
     utils::{delete_flash_cookie, see_other_with_flash},
 };
@@ -46,41 +46,36 @@ pub async fn change_password_post(
     form: web::Form<FormData>,
     user_id: web::ReqData<UserId>,
     pool: web::Data<MySqlPool>,
-) -> Result<HttpResponse, actix_web::Error> {
-    if form.new_password.expose_secret() != form.confirm_new_password.expose_secret() {
-        tracing::warn!(PASSWORD_CHANGE_FAILED_NOT_EQ_CONFIRM);
-        return Ok(see_other_with_flash(
-            "/user/password",
-            PASSWORD_CHANGE_FAILED_NOT_EQ_CONFIRM,
-        ));
-    }
-
-    if form.new_password.expose_secret().len() < 4 {
-        tracing::warn!(PASSWORD_CHANGE_FAILED_PASSWORD_TOO_SHORT);
-        return Ok(see_other_with_flash(
-            "/user/password",
-            PASSWORD_CHANGE_FAILED_PASSWORD_TOO_SHORT,
-        ));
+) -> Result<HttpResponse, ValidationError> {
+    if let Err(ValidationError::ValidationError(e)) =
+        validate_password_and_confirm(&form.new_password, &form.confirm_new_password)
+    {
+        tracing::info!("{}", e);
+        return Ok(see_other_with_flash("/user/password", &e.to_string()));
     }
 
     let user_id = user_id.into_inner();
-    let username = get_username(&pool, &user_id).await.map_err(e500)?;
+    let email = get_email(&pool, &user_id)
+        .await
+        .map_err(ValidationError::UnexpectedError)?;
     let current_password = form.old_password.clone();
 
-    if validate_credentials(username, current_password, &pool)
-        .await
-        .is_err()
-    {
-        tracing::warn!(PASSWORD_CHANGE_FAILED_CURRENT_PASSWORD_WRONG);
-        return Ok(see_other_with_flash(
-            "/user/password",
-            PASSWORD_CHANGE_FAILED_CURRENT_PASSWORD_WRONG,
-        ));
+    if let Err(e) = validate_credentials(email, current_password, &pool).await {
+        match e {
+            ValidationError::ValidationError(e) => {
+                tracing::info!("{}", e);
+                return Ok(see_other_with_flash("/user/password", &e.to_string()));
+            }
+            error => {
+                tracing::error!("{}", error);
+                return Err(error);
+            }
+        }
     }
 
     change_password(user_id.0, form.0.new_password, &pool)
         .await
-        .map_err(e500)?;
+        .map_err(ValidationError::UnexpectedError)?;
 
     tracing::info!(CHANGE_PASSWORD_SUCCESSFUL);
     Ok(see_other_with_flash(
