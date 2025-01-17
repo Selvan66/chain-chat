@@ -5,6 +5,7 @@ use chain_chat::database::users::check_if_username_exist;
 use chain_chat::domain::messages::*;
 
 use crate::helpers::assert::{assert_flash_message, assert_is_redirect_to};
+use crate::helpers::database::drop_table;
 use crate::helpers::spawn_app;
 use crate::helpers::user::TestUser;
 
@@ -155,4 +156,18 @@ async fn cannot_register_if_you_are_login() {
     let response = new_user.register(&app).await;
     assert_is_redirect_to(&response, "/user/info");
     assert_flash_message(&app, "/user/info", USER_LOGIN).await;
+}
+
+#[tokio::test]
+async fn error_500_if_register_while_database_down() {
+    let app = spawn_app().await;
+    drop_table(&app.db_pool, "users").await.unwrap();
+
+    let user = TestUser::generate();
+    let response = user.register(&app).await;
+
+    assert_eq!(response.status().as_u16(), 500);
+
+    let text = response.text().await.unwrap();
+    assert!(text.contains(MESSAGE_500));
 }
