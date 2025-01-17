@@ -30,6 +30,7 @@ argon2 = { version = "0.5.3", features = ["std"] }
 rand = { version = "0.8.5", features = ["std_rng"] }
 # Errors
 anyhow = "1.0.86"
+thiserror = "2.0.11"
 # Tracing / Logs
 tracing = { version = "0.1.40", features = ["log", "attributes"] }
 tracing-subscriber = { version = "0.3.18", features = ["registry", "env-filter", "json"] }

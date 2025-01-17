@@ -8,7 +8,8 @@ use crate::{
     auth::compute_password_hash,
     database::users::{add_user, check_if_username_exist},
     domain::{messages::*, User},
-    utils::{delete_flash_cookie, e500, see_other_with_flash},
+    error::e500,
+    utils::{delete_flash_cookie, see_other_with_flash},
 };
 
 fn render_register_page(req: &HttpRequest) -> Result<String, anyhow::Error> {

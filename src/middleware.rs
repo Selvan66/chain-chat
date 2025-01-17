@@ -10,8 +10,9 @@ use tera::Tera;
 
 use crate::{
     domain::messages::*,
+    error::e500,
     session::{UserId, UserSession},
-    utils::{delete_flash_cookie, e500, see_other, see_other_with_flash},
+    utils::{delete_flash_cookie, see_other, see_other_with_flash},
 };
 
 pub async fn reject_logged_users(

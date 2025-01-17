@@ -3,9 +3,7 @@ use anyhow::Context;
 use sqlx::MySqlPool;
 
 use crate::{
-    database::users::get_username,
-    session::UserId,
-    utils::{delete_flash_cookie, e500},
+    database::users::get_username, error::e500, session::UserId, utils::delete_flash_cookie,
 };
 
 fn render_info_page(req: &HttpRequest, username: &str) -> Result<String, anyhow::Error> {

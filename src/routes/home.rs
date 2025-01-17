@@ -2,7 +2,7 @@ use actix_web::{http::header::ContentType, HttpRequest, HttpResponse};
 use anyhow::Context;
 use tera::Tera;
 
-use crate::utils::{delete_flash_cookie, e500};
+use crate::{error::e500, utils::delete_flash_cookie};
 
 fn render_home_page(req: &HttpRequest) -> Result<String, anyhow::Error> {
     let tera = Tera::new("templates/**/*").context("Creating tera tamplate failed")?;

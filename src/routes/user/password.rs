@@ -8,8 +8,9 @@ use crate::{
     auth::{change_password, validate_credentials},
     database::users::get_username,
     domain::messages::*,
+    error::e500,
     session::UserId,
-    utils::{delete_flash_cookie, e500, see_other_with_flash},
+    utils::{delete_flash_cookie, see_other_with_flash},
 };
 
 fn render_password_page(req: &HttpRequest) -> Result<String, anyhow::Error> {

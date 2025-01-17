@@ -35,11 +35,3 @@ pub fn delete_flash_cookie<'a>() -> Cookie<'a> {
     cookie.make_removal();
     cookie
 }
-
-pub fn e500<T>(e: T) -> actix_web::Error
-where
-    T: std::fmt::Debug + std::fmt::Display + 'static,
-{
-    tracing::error!("{}", e);
-    actix_web::error::ErrorInternalServerError(e)
-}
