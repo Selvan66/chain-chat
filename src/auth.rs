@@ -27,7 +27,7 @@ pub fn compute_password_hash(password: Secret<String>) -> Result<Secret<String>,
 }
 
 pub async fn validate_credentials(
-    username: String,
+    email: String,
     password: Secret<String>,
     pool: &MySqlPool,
 ) -> Result<String, ValidationError> {
@@ -35,7 +35,7 @@ pub async fn validate_credentials(
     let mut expected_password_hash = Secret::new("$argon2id$v=19$m=15000,t=2,p=1$JDJiJDEyJHhIU3A5MlpmSUl0RUlRemFldTZUYy4$ucZ8s1uXegdnt6wAaIu8+/b+64j2bp10djXEgIuhZm0".to_string());
 
     if let Some((stored_user_id, stored_password_hash)) =
-        get_user_id_and_password(pool, &username).await?
+        get_user_id_and_password(pool, &email).await?
     {
         user_id = Some(stored_user_id);
         expected_password_hash = stored_password_hash;
@@ -72,11 +72,7 @@ pub async fn validate_register(
     confirm_password: &Secret<String>,
     pool: &MySqlPool,
 ) -> Result<(), ValidationError> {
-    if email.len() > 250 {
-        return Err(ValidationError::ValidationError(anyhow::anyhow!(
-            FAILED_EMAIL_TOO_LONG
-        )));
-    }
+    validate_email(email)?;
 
     if check_if_email_exist(pool, email)
         .await
@@ -88,6 +84,28 @@ pub async fn validate_register(
     }
 
     validate_password_and_confirm(password, confirm_password)
+}
+
+pub fn validate_email(email: &str) -> Result<(), ValidationError> {
+    if email.len() > 250 {
+        return Err(ValidationError::ValidationError(anyhow::anyhow!(
+            FAILED_EMAIL_TOO_LONG
+        )));
+    }
+
+    let re = regex::Regex::new(
+        r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})",
+    )
+    .context("Failed to compile regex")
+    .map_err(ValidationError::UnexpectedError)?;
+
+    if !re.is_match(email) {
+        return Err(ValidationError::ValidationError(anyhow::anyhow!(
+            FAILED_WRONG_EMAIL_FORMAT
+        )));
+    }
+
+    Ok(())
 }
 
 pub fn validate_password_and_confirm(

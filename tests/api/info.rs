@@ -13,5 +13,5 @@ async fn user_info_get_works() {
     assert!(response.status().is_success());
 
     let html = app.get_html("/user/info").await;
-    assert!(html.contains(&user.username));
+    assert!(html.contains(&user.email));
 }

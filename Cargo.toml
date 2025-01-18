@@ -28,6 +28,7 @@ secrecy = { version = "0.8.0", features = ["serde"] }
 uuid = { version = "1.10.0", features = ["v4", "serde"] }
 argon2 = { version = "0.5.3", features = ["std"] }
 rand = { version = "0.8.5", features = ["std_rng"] }
+regex = "1.11.1"
 # Errors
 anyhow = "1.0.86"
 thiserror = "2.0.11"

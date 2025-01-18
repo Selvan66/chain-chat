@@ -34,13 +34,13 @@ pub async fn login_get(req: HttpRequest) -> Result<HttpResponse, actix_web::Erro
 
 #[derive(serde::Deserialize, Debug)]
 struct FormData {
-    username: String,
+    email: String,
     password: Secret<String>,
 }
 
 #[tracing::instrument(
     skip_all,
-    fields(username = form.username)
+    fields(email = form.email)
 )]
 #[actix_web::post("/login")]
 pub async fn login_post(
@@ -48,7 +48,7 @@ pub async fn login_post(
     pool: web::Data<MySqlPool>,
     session: UserSession,
 ) -> Result<HttpResponse, ValidationError> {
-    match validate_credentials(form.0.username, form.0.password, &pool).await {
+    match validate_credentials(form.0.email, form.0.password, &pool).await {
         Ok(user_id) => {
             tracing::info!("User {} login!", user_id);
             session.renew();

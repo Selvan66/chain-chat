@@ -47,6 +47,8 @@ pub async fn change_password_post(
     user_id: web::ReqData<UserId>,
     pool: web::Data<MySqlPool>,
 ) -> Result<HttpResponse, ValidationError> {
+    let user_id = user_id.into_inner();
+
     if let Err(ValidationError::ValidationError(e)) =
         validate_password_and_confirm(&form.new_password, &form.confirm_new_password)
     {
@@ -54,10 +56,10 @@ pub async fn change_password_post(
         return Ok(see_other_with_flash("/user/password", &e.to_string()));
     }
 
-    let user_id = user_id.into_inner();
     let email = get_email(&pool, &user_id)
         .await
         .map_err(ValidationError::UnexpectedError)?;
+
     let current_password = form.old_password.clone();
 
     if let Err(e) = validate_credentials(email, current_password, &pool).await {

@@ -1,7 +1,7 @@
 use fake::faker::name;
 use fake::Fake;
 
-use chain_chat::database::users::check_if_username_exist;
+use chain_chat::database::users::check_if_email_exist;
 use chain_chat::domain::messages::*;
 
 use crate::helpers::assert::{assert_flash_message, assert_is_redirect_to};
@@ -18,7 +18,7 @@ async fn register_get_works() {
     assert!(response.status().is_success());
 
     let html = app.get_html("/auth/register").await;
-    assert!(html.contains("Username"));
+    assert!(html.contains("Email"));
     assert!(html.contains("Password"));
     assert!(html.contains("Confirm Password"));
 }
@@ -33,47 +33,28 @@ async fn register_post_works() {
     assert_is_redirect_to(&response, "/");
     assert_flash_message(&app, "/", REGISTRATION_SUCCESSFUL).await;
 
-    assert!(
-        check_if_username_exist(&app.db_pool, user.username.as_str())
-            .await
-            .expect("Cannot query database")
-    );
+    assert!(check_if_email_exist(&app.db_pool, user.email.as_str())
+        .await
+        .expect("Cannot query database"));
 }
 
 #[tokio::test]
-async fn username_is_too_long() {
+async fn email_is_too_long() {
     let app = spawn_app().await;
 
     let mut user = TestUser::generate();
-    user.username = 251.fake();
+    user.email = 251.fake::<String>() + "@test.com";
 
     let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    assert_flash_message(
-        &app,
-        "/auth/register",
-        REGISTRATION_FAILED_USERNAME_TOO_LONG,
-    )
-    .await;
+    assert_flash_message(&app, "/auth/register", FAILED_EMAIL_TOO_LONG).await;
 }
 
 #[tokio::test]
-async fn username_is_too_short() {
-    let app = spawn_app().await;
-
-    let mut user = TestUser::generate();
-    user.username = "a".to_string();
-
-    let response = user.register(&app).await;
-    assert_is_redirect_to(&response, "/auth/register");
-
-    assert_flash_message(
-        &app,
-        "/auth/register",
-        REGISTRATION_FAILED_USERNAME_TOO_SHORT,
-    )
-    .await;
+async fn validate_email() {
+    // Test cases for wrong and right email
+    todo!();
 }
 
 #[tokio::test]
@@ -86,12 +67,7 @@ async fn register_short_password() {
     let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    assert_flash_message(
-        &app,
-        "/auth/register",
-        REGISTRATION_FAILED_PASSWORD_TOO_SHORT,
-    )
-    .await;
+    assert_flash_message(&app, "/auth/register", FAILED_PASSWORD_TOO_SHORT).await;
 }
 
 #[tokio::test]
@@ -107,7 +83,7 @@ async fn username_is_already_used() {
     let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    assert_flash_message(&app, "/auth/register", REGISTRATION_FAILED_USERNAME_USED).await;
+    assert_flash_message(&app, "/auth/register", FAILED_EMAIL_USED).await;
 }
 
 #[tokio::test]
@@ -125,12 +101,7 @@ async fn password_and_confirm_password_is_not_equal() {
     let response = app.post_body(&register_body, "/auth/register").await;
     assert_is_redirect_to(&response, "/auth/register");
 
-    assert_flash_message(
-        &app,
-        "/auth/register",
-        REGISTRATION_FAILED_PASSWORD_NOT_EQ_CONFIRM,
-    )
-    .await;
+    assert_flash_message(&app, "/auth/register", FAILED_PASSWORD_NOT_EQ_CONFIRM).await;
 }
 
 #[tokio::test]

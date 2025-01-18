@@ -55,7 +55,7 @@ async fn password_post_works() {
 
     // Try to login with new password
     let user = TestUser {
-        username: user.username,
+        email: user.email,
         password: new_password,
     };
 
@@ -74,12 +74,7 @@ async fn password_too_short() {
 
     let response = user.change_password(&app, &new_password).await;
     assert_is_redirect_to(&response, "/user/password");
-    assert_flash_message(
-        &app,
-        "/user/password",
-        PASSWORD_CHANGE_FAILED_PASSWORD_TOO_SHORT,
-    )
-    .await;
+    assert_flash_message(&app, "/user/password", FAILED_PASSWORD_TOO_SHORT).await;
 }
 
 #[tokio::test]
@@ -94,12 +89,7 @@ async fn old_password_wrong() {
 
     let response = user.change_password(&app, &new_password).await;
     assert_is_redirect_to(&response, "/user/password");
-    assert_flash_message(
-        &app,
-        "/user/password",
-        PASSWORD_CHANGE_FAILED_CURRENT_PASSWORD_WRONG,
-    )
-    .await;
+    assert_flash_message(&app, "/user/password", FAILED_CURRENT_PASSWORD_WRONG).await;
 }
 
 #[tokio::test]
@@ -120,10 +110,5 @@ async fn new_password_not_eq_confirm() {
 
     let response = app.post_body(&password_body, "/user/password").await;
     assert_is_redirect_to(&response, "/user/password");
-    assert_flash_message(
-        &app,
-        "/user/password",
-        PASSWORD_CHANGE_FAILED_NOT_EQ_CONFIRM,
-    )
-    .await;
+    assert_flash_message(&app, "/user/password", FAILED_PASSWORD_NOT_EQ_CONFIRM).await;
 }

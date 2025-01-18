@@ -14,7 +14,7 @@ async fn login_get_works() {
     assert!(response.status().is_success());
 
     let html = app.get_html("/auth/login").await;
-    assert!(html.contains("Username"));
+    assert!(html.contains("Email"));
     assert!(html.contains("Password"));
 }
 
@@ -41,15 +41,15 @@ async fn an_error_message_on_failure() {
     let response = user.register(&app).await;
     assert_is_redirect_to(&response, "/");
 
-    // Login - wrong user name
-    let username = user.username;
-    user.username = "abcd".to_string();
+    // Login - wrong email
+    let email = user.email;
+    user.email = "abcd".to_string();
 
     let response = user.login(&app).await;
     assert_is_redirect_to(&response, "/auth/login");
     assert_flash_message(&app, "/auth/login", AUTHENTICATION_FAILED).await;
 
-    user.username = username;
+    user.email = email;
 
     // Login - wrong password
     user.password = "abcd".to_string();

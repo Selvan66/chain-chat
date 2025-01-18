@@ -39,7 +39,7 @@ struct FormData {
     confirm_password: Secret<String>,
 }
 
-#[tracing::instrument(skip_all, fields(username = form.email))]
+#[tracing::instrument(skip_all, fields(email = form.email))]
 #[actix_web::post("/register")]
 pub async fn register_post(
     form: web::Form<FormData>,
