@@ -1,4 +1,4 @@
-use chain_chat::domain::messages::MESSAGE_404;
+use chain_chat::domain::messages::*;
 
 use crate::helpers::app::spawn_app;
 
@@ -29,4 +29,14 @@ async fn error_404_works() {
         let html = app.get_html(case).await;
         assert!(html.contains(MESSAGE_404));
     }
+}
+
+#[tokio::test]
+async fn other_errors_works() {
+    let app = spawn_app().await;
+    let response = app.post("/auth/register").await;
+    assert_eq!(response.status().as_u16(), 415);
+
+    let html = app.post_html("/auth/register").await;
+    assert!(html.contains(MESSAGE_UNKOWN_ERROR));
 }

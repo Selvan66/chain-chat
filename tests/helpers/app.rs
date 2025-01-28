@@ -49,6 +49,10 @@ impl TestApp {
             .await
             .expect("Failed to POST")
     }
+
+    pub async fn post_html(&self, path: &str) -> String {
+        self.post(path).await.text().await.unwrap()
+    }
 }
 
 pub async fn spawn_app() -> TestApp {

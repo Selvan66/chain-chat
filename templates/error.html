@@ -28,8 +28,10 @@
     <b>{{ error_404_message }}</b>
     {% elif error_500_message is defined %}
     <b>{{ error_500_message }}</b>
+    {% elif error_message is defined %}
+    <b>{{ error_message }}</b>
     {% else %}
-    <b>ERROR</b>
+    <b>Unkown error</b>
     {% endif %}
   </div>
 {% endblock body %}

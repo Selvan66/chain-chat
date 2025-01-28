@@ -66,6 +66,8 @@ fn render_error_page(req: &HttpRequest, status: u16) -> Result<String, anyhow::E
         ctx.insert("flash_message", flash_cookie.value());
     }
 
+    ctx.insert("error_message", MESSAGE_UNKOWN_ERROR);
+
     if status == 404 {
         ctx.insert("error_404_message", MESSAGE_404);
     } else if status == 500 {
