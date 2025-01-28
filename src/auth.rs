@@ -101,7 +101,7 @@ pub fn validate_email(email: &str) -> Result<(), ValidationError> {
 
     if !re.is_match(email) {
         return Err(ValidationError::ValidationError(anyhow::anyhow!(
-            FAILED_WRONG_EMAIL_FORMAT
+            FAILED_WRONG_EMAIL
         )));
     }
 
