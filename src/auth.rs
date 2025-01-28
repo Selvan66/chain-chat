@@ -139,6 +139,6 @@ fn verify_password_hash(
             password_candidate.expose_secret().as_bytes(),
             &expected_password_hash,
         )
-        .context("Invalid password")
+        .context(FAILED_CURRENT_PASSWORD_WRONG)
         .map_err(ValidationError::ValidationError)
 }

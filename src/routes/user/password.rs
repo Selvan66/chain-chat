@@ -52,7 +52,7 @@ pub async fn change_password_post(
     if let Err(ValidationError::ValidationError(e)) =
         validate_password_and_confirm(&form.new_password, &form.confirm_new_password)
     {
-        tracing::info!("{}", e);
+        tracing::info!("Validate password and confirm: {}", e);
         return Ok(see_other_with_flash("/user/password", &e.to_string()));
     }
 
@@ -65,7 +65,7 @@ pub async fn change_password_post(
     if let Err(e) = validate_credentials(email, current_password, &pool).await {
         match e {
             ValidationError::ValidationError(e) => {
-                tracing::info!("{}", e);
+                tracing::info!("Validate credentials: {}", e);
                 return Ok(see_other_with_flash("/user/password", &e.to_string()));
             }
             error => {

@@ -17,5 +17,13 @@
 * [ ] Redis error handling
 * [x] Change 'expect' to e500().context() for endpoints
 * [x] Add to health_check html page (rendered using string)
-* [ ] Change error handling to enum error
-* [ ] Use mail api (sendgrid) to register
+* [x] Change error handling to enum error for post api
+    * [x] Login page difference between 500 and wrong credential
+    * [x] Move register validation to auth file
+    * [ ] Verify correctness of a email
+* [ ] Use mail api (postmark) to register
+    * [ ] Migration database to use email as username
+
+---
+
+* [ ] target-cpu=generic check if work on server

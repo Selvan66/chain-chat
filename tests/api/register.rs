@@ -1,4 +1,3 @@
-use fake::faker::name;
 use fake::Fake;
 
 use chain_chat::database::users::check_if_email_exist;
@@ -90,11 +89,11 @@ async fn username_is_already_used() {
 async fn password_and_confirm_password_is_not_equal() {
     let app = spawn_app().await;
 
-    let username: String = name::en::Name().fake();
+    let user = TestUser::generate();
 
     let register_body = serde_json::json!({
-        "username": username,
-        "password": uuid::Uuid::new_v4().to_string(),
+        "email": user.email,
+        "password": user.password,
         "confirm_password": uuid::Uuid::new_v4().to_string(),
     });
 
