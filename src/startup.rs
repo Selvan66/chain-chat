@@ -11,7 +11,7 @@ use deadpool_redis::Pool;
 use secrecy::ExposeSecret;
 use sqlx::MySqlPool;
 
-use crate::configuration::Settings;
+use crate::config::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
 use crate::middleware::{error_handler, reject_anonymous_users, reject_logged_users};
 use crate::routes::{

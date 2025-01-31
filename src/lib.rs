@@ -1,5 +1,5 @@
 pub mod auth;
-pub mod configuration;
+pub mod config;
 pub mod database;
 pub mod domain;
 pub mod error;

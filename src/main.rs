@@ -1,4 +1,4 @@
-use chain_chat::configuration::get_configuration;
+use chain_chat::config::get_configuration;
 use chain_chat::startup::Application;
 use chain_chat::telemetry::{init_tracing_logger, LogConfig};
 

@@ -2,7 +2,7 @@ use sqlx::mysql::MySqlPool;
 use tracing_appender::non_blocking::WorkerGuard;
 use uuid::Uuid;
 
-use chain_chat::configuration::get_configuration;
+use chain_chat::config::get_configuration;
 use chain_chat::database::init::connection_without_db;
 use chain_chat::startup::Application;
 use chain_chat::telemetry::{init_tracing_logger, LogConfig};

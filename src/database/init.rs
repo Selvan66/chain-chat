@@ -2,7 +2,7 @@ use secrecy::ExposeSecret;
 use sqlx::mysql::{MySqlConnectOptions, MySqlPool, MySqlPoolOptions, MySqlSslMode};
 use sqlx::ConnectOptions;
 
-use crate::configuration::DatabaseSettings;
+use crate::config::DatabaseSettings;
 
 pub fn connection_without_db(settings: &DatabaseSettings) -> MySqlConnectOptions {
     let ssl_mode = if settings.require_ssl {
