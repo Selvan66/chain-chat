@@ -3,6 +3,7 @@ use argon2::{
     password_hash::SaltString, Algorithm, Argon2, Params, PasswordHash, PasswordHasher,
     PasswordVerifier, Version,
 };
+use email_address::EmailAddress;
 use secrecy::{ExposeSecret, Secret};
 use sqlx::MySqlPool;
 
@@ -46,7 +47,7 @@ pub async fn validate_credentials(
         .context("Failed to spawn blocking task.")??;
 
     user_id
-        .ok_or_else(|| anyhow::anyhow!("Unkown user"))
+        .ok_or_else(|| anyhow::anyhow!(FAILED_EMAIL_USED))
         .map_err(ValidationError::ValidationError)
 }
 
@@ -93,13 +94,16 @@ pub fn validate_email(email: &str) -> Result<(), ValidationError> {
         )));
     }
 
-    let re = regex::Regex::new(
-        r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,6})",
+    if EmailAddress::parse_with_options(
+        email,
+        email_address::Options::default()
+            .with_required_tld()
+            .with_minimum_sub_domains(2)
+            .without_domain_literal()
+            .without_display_text(),
     )
-    .context("Failed to compile regex")
-    .map_err(ValidationError::UnexpectedError)?;
-
-    if !re.is_match(email) {
+    .is_err()
+    {
         return Err(ValidationError::ValidationError(anyhow::anyhow!(
             FAILED_WRONG_EMAIL
         )));
