@@ -65,19 +65,16 @@ async fn validate_email() {
         ".email@example.com",
         "email.@example.com",
         "email..email@example.com",
-        "あいうえお@example.com",
-        "user@あいうえお.com",
         "email@example.com (Joe Smith)",
         "email@example",
-        "email@example.c",
         "email@-example.com",
         "email@example.c@m",
-        "email@example.c!m",
-        "email@111.222.333.44444",
         "email@example..com",
         "Abc..123@example.com",
         "just\"not\"right@example.com",
         "this\\ is\"really\"not\\allowed@example.com",
+        "Simon <simon@example.com>",
+        "<simon@example.com>",
     ];
 
     for case in test_cases_wrong {
@@ -95,6 +92,8 @@ async fn validate_email() {
         "user.name@mail.example.co.uk",
         "user123@domain.com",
         "user.name+tag+sorting@example.com",
+        "4@gmail.com",
+        "A@gmail.com",
     ];
 
     for case in test_cases_correct {

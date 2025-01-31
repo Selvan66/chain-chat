@@ -21,7 +21,7 @@ pub fn assert_is_redirect_to_with_assert_message(
 
 pub async fn assert_flash_message(app: &TestApp, path: &str, message: &str) {
     let html = app.get_html(path).await;
-    assert!(html.contains(message));
+    assert!(html.contains(message), "{}", message);
     let html = app.get_html(path).await;
-    assert!(!html.contains(message));
+    assert!(!html.contains(message), "{}", message);
 }
