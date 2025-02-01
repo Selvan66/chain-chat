@@ -1,5 +1,6 @@
 use std::net::TcpListener;
 
+use actix_files::Files;
 use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::Key;
@@ -15,8 +16,8 @@ use crate::config::Settings;
 use crate::database::init::{connection_with_db, get_db_pool};
 use crate::middleware::{error_handler, reject_anonymous_users, reject_logged_users};
 use crate::routes::{
-    change_password_get, change_password_post, favicon_get, health_check, home_get, info_get,
-    login_get, login_post, logout_post, register_get, register_post,
+    change_password_get, change_password_post, health_check, home_get, info_get, login_get,
+    login_post, logout_post, register_get, register_post,
 };
 
 pub struct Application {
@@ -83,7 +84,6 @@ async fn run(
                 secret_key.clone(),
             ))
             .wrap(ErrorHandlers::new().default_handler(error_handler))
-            .service(favicon_get)
             .service(home_get)
             .service(health_check)
             .service(
@@ -102,6 +102,7 @@ async fn run(
                     .service(change_password_get)
                     .service(change_password_post),
             )
+            .service(Files::new("/", "./static"))
             .app_data(db_pool.clone())
             .app_data(redis_pool.clone())
     })
