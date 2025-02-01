@@ -3,11 +3,10 @@
 * [x] change password - endpoint
 * [ ] OAuth - github
     * [ ] Migration user (if from OAuth - disable change password)
+    * [ ] Front-end
 * [x] Add footnote - Only Private usage
 * [x] Add favicon.ico
 * [x] Add to toml optimization flags
-* [ ] Fix tracing with actix-web (json format + delete logging to file)
-    * [ ] Add 'save to file' to docker compose
 * [x] Test app in docker using github action
     * [x] Publish only if end successful
     * [x] Publish target runtime not tests
@@ -20,10 +19,12 @@
 * [x] Change error handling to enum error for post api
     * [x] Login page difference between 500 and wrong credential
     * [x] Move register validation to auth file
-    * [ ] Verify correctness of a email
+    * [x] Verify correctness of a email
 * [ ] Use mail api (postmark) to register
-    * [ ] Migration database to use email as username
+    * [x] Migration database to use email as username
 
 ---
 
 * [ ] target-cpu=generic check if work on server
+* [ ] Fix tracing with actix-web (json format + delete logging to file)
+    * [ ] Add 'save to file' to docker compose
