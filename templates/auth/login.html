@@ -5,20 +5,49 @@
 {{ super() }}
 
 .content {
-  font-size: 64px;
+  font-size: 16px;
   align-items: center;
   justify-content: center;
   display: flex;
-  color: #fff;
+  color: #111;
   flex-grow: 1;
+  flex-direction: column;
 }
 
 .login-container {
     background-color: white;
-    padding: 40px;
+    padding: 30px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 300px;
+    margin: 10px;
+}
+
+.oauth-container {
+    background-color: white;
+    color: #222;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 340px;
+    margin: 10px;
+}
+
+.github-btn {
+  background-color: #222;
+  color: white;
+  align-items: center;
+  display: flex;
+  padding: 7px;
+  border-radius: 7px;
+  margin-top: 7px;
+  text-decoration: none;
+}
+
+.github-icon {
+  width: 30px;
+  height: auto;
+  padding-right: 7px;
 }
 
 form {
@@ -26,8 +55,7 @@ form {
     flex-direction: column;
 }
 
-input[type="text"],
-input[type="password"] {
+input {
     background-color: rgba(255, 255, 255, 0.9);
     border: none;
     border-bottom: 1px solid #ccc;
@@ -62,8 +90,17 @@ input[type="password"] {
             placeholder="Password"
             name="password"
         </label>
-        <button type="submit">Log in</button>
+        <button type="submit">Login</button>
       </form>
     </div>
+
+    <div class="oauth-container">
+      <span>Or Login with</span><br>
+      <a href="/auth/login-github" class="github-btn">
+        <img src="/assets/github-mark-white.svg" alt="GitHub Logo" class="github-icon">
+          Github
+      </button>
+    </div>
+
   </div>
 {% endblock body %}
